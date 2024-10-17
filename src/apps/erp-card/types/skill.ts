@@ -15,6 +15,11 @@ export interface Skill {
     // 该分组内包含的技能
     skills: ChildSkill[];
   };
+  // TODO: 临时的解决方案。如果是组合技能，则有这一项
+  combine?: {
+    // 显示的技能列表，init 是需要分配的点数
+    show: ChildSkill[];
+  };
 }
 
 export interface ChildSkill {
