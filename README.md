@@ -1,3 +1,26 @@
+# 现仓库readme:
+原项目是有用github-pages部署在线网页的,但因为众所周知的原因,平时比较难访问,折腾过vercel和其他在线部署静态网页的平台都不行后,就试着用Hbuilderx打包APP出来了,不过仅打包了车卡工具出来,其他的几个后续看大家意愿再打包
+
+# 下载
+https://file.486486486.xyz/trpg_saikou_1.1.apk
+https://r2.subrecovery.top/trpg_saikou_1.1.apk
+https://github.com/autumn-moon-py/trpg-saikou/releases/tag/v1.1
+https://wwqf.lanzouw.com/iAzw32dke35i 密码:206j
+
+## 打包
+
+```sh
+yarn install
+
+sh ./shell/copy.sh
+
+npm run build
+```
+将打包出来的dist目录内全部文件移动到目录下的uniapp中,再用HbuilderX打开uniapp目录进行打包
+
+
+# 原仓库readme:
+
 # TRPG 赛高！
 
 一个 TRPG 辅助工具。自己有什么需求都会一点一点加进来。
