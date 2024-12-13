@@ -93,10 +93,13 @@ const battleSkills = computed<BattleSkill[]>(() => {
 });
 
 const battleSkillOptions = computed(() => {
-  return battleSkills.value.map(({ name }) => ({
-    value: name,
-    label: name,
-  }));
+  return [
+    { value: '', label: '' }, // 添加空选项
+    ...battleSkills.value.map(({ name }) => ({
+      value: name,
+      label: name,
+    })),
+  ];
 });
 
 const {
@@ -120,6 +123,20 @@ function updatePCWeapon(updates: Partial<Weapon>) {
   if (!pc) return;
   if (!pc.value.weapons[props.index]) pc.value.weapons[props.index] = createWeapon();
   const weapon = pc.value.weapons[props.index];
+
+  if (updates.hasOwnProperty('skill') && updates.skill === '') {
+    updates = {
+      ...updates,
+      name: '',
+      dam: '',
+      range: '',
+      tho: 0,
+      round: '',
+      num: '',
+      err: '',
+    };
+  }
+
   Object.assign(weapon, updates);
 }
 

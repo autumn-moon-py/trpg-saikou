@@ -25,18 +25,6 @@ const pc = usePC();
         />
       </div>
     </PaperSection>
-    <PaperSection class="qr-section">
-      <template v-slot:header>
-        <div class="qr-section-header">扫码车卡</div>
-      </template>
-      <div class="qr-container">
-        <img
-          class="qr-code"
-          :src="qr"
-          alt="二维码渲染失败，请手动访问 https://masquevil.github.io/trpg-saikou/#/coc-card"
-        />
-      </div>
-    </PaperSection>
   </div>
 </template>
 
