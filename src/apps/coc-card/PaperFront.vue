@@ -11,7 +11,6 @@ import HintSection from './sections/HintSection.vue';
 import SkillSection from './sections/SkillSection.vue';
 import WeaponSection from './sections/WeaponSection.vue';
 import BattleSection from './sections/BattleSection.vue';
-import CopyrightSection from './sections/CopyrightSection.vue';
 
 interface Props {
   setRef?: VNodeRef;
@@ -34,7 +33,6 @@ defineProps<Props>();
       <WeaponSection class="col-0" />
       <BattleSection />
     </div>
-    <CopyrightSection />
   </PaperLayout>
 </template>
 
