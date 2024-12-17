@@ -6,7 +6,6 @@ import RandNameButton from './RandNameButton.vue';
 import RandNameOption from './RandNameOption.vue';
 
 // models
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 import { usePC, usePageData } from '../../../hooks/useProviders';
 import { randName } from '../../../models/name';
 import { RandNameScope } from '../../../types/name';
@@ -33,7 +32,6 @@ function onButtonClick() {
   const gender = pc.value.gender[0];
   const sex = gender === '男' ? 'male' : gender === '女' ? 'female' : 'all';
   pc.value.name = randName(selectedOption.value.scope, sex);
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.PAPER_RAND_NAME });
 }
 </script>
 

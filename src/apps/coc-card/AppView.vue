@@ -59,7 +59,6 @@ const paperEls = reactive<{ front?: HTMLElement; back?: HTMLElement }>({});
 
 <template>
   <main class="page theme-dark">
-    <h1 class="title web-only">COC 7版人物卡 车卡工具</h1>
     <div class="paper-container theme-light">
       <div class="papers-animation-container papers-editing web-only">
         <Transition name="swipe-paper">

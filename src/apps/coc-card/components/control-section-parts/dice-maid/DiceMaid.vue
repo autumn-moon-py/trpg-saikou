@@ -9,7 +9,6 @@ import ControlButton from '../../ControlButton.vue';
 import ControlDialog from '../../ControlDialog.vue';
 import { usePC, useViewData } from '../../../hooks/useProviders';
 import { getDiceMaidStString } from '../../../models/skill.ts';
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 const pc = usePC();
 const viewData = useViewData();
@@ -21,7 +20,6 @@ const visible = ref(false);
 
 function onButtonClick() {
   visible.value = true;
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.MORE_DICE_MAID });
 }
 
 function onFocus(event: FocusEvent) {
@@ -30,7 +28,6 @@ function onFocus(event: FocusEvent) {
 function onCopyButtonClick() {
   copy(str.value);
   ElMessage.success('已复制录卡指令');
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.CA_DICE_MAID_COPY });
 }
 </script>
 

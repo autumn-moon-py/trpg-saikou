@@ -5,7 +5,6 @@ import { Upload } from '@element-plus/icons-vue';
 // models
 import formattedJobs, { getProPointByJobAndAttrs } from '../models/job';
 import { getJobSuggestion } from '../models/suggestion';
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 import { usePC } from '../hooks/useProviders';
 
@@ -50,10 +49,6 @@ const list = computed(() => {
 function applyJob(jobName: string) {
   if (!pc) return;
   pc.value.job = jobName;
-  LA?.track(LAEventID.FEATURE, {
-    name: FeatureNames.PANE_USE_JOB,
-    job: jobName,
-  });
 }
 </script>
 

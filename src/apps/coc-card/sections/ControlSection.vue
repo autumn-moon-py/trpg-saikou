@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch, reactive } from 'vue';
+import { computed, nextTick, ref, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
@@ -21,19 +21,14 @@ import ControlButton from '../components/ControlButton.vue';
 import ControlDialog from '../components/ControlDialog.vue';
 import DownloaderItem from '../components/DownloaderItem.vue';
 import BuyPointsButton from '../components/control-section-parts/buy-points/BuyPointsButton.vue';
-import GuidePaneContent from '../components/GuidePaneContent.vue';
-import QunSection from '../components/QunSection.vue';
 import JobList from '../components/JobList.vue';
 import WeaponList from '../components/WeaponList.vue';
 import DiceMaid from '../components/control-section-parts/dice-maid/DiceMaid.vue';
-import SimpleRollButton from '../components/control-section-parts/simple-roll/SimpleRollButton.vue';
-// import NoticeBoardButton from '../components/control-section-parts/notice-board/NoticeBoardButton.vue';
 
 // models
 import { modifyAttributesByAge } from '../models/attribute';
 import { createPC } from '../models/character';
 import { resetViewData } from '../models/viewData';
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
@@ -41,8 +36,6 @@ import useAppLs from '../hooks/useAppLs';
 import { downloadFile } from '@/utils/file';
 
 import type { COCCardViewData } from '../types/viewData';
-import qrWechat from '@/assets/images/qr-wechat.jpg';
-import qrAlipay from '@/assets/images/qr-alipay.jpg';
 import cardPdf from '../assets/coc-card-empty.pdf';
 
 interface Props {
@@ -90,19 +83,8 @@ const rewardModalVisible = ref(false);
 const morePanelVisible = ref(false);
 const morePanelActiveTab = ref('features');
 
-function onTabChange(tabName: string | number) {
-  const map = {
-    features: FeatureNames.TAB_MORE,
-    jobs: FeatureNames.TAB_JOB_LIST,
-    weapons: FeatureNames.TAB_WEAPON_LIST,
-    guide: FeatureNames.TAB_GUIDE,
-  };
-  LA?.track(LAEventID.FEATURE, { name: map[tabName as keyof typeof map] });
-}
-
 function actSwitchPaper() {
   emit('switch-paper');
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.F_SWITCH_PAPER });
 }
 
 const { paperImages, printPaper } = usePrintPaper(props.paperEls);
@@ -130,43 +112,20 @@ function actPrintPaper(paperKey?: 'front' | 'back') {
       });
     },
   });
-
-  if (!paperKey) {
-    LA?.track(LAEventID.FEATURE, { name: FeatureNames.F_SAVE });
-  } else {
-    LA?.track(LAEventID.FEATURE, {
-      name: FeatureNames.CA_SAVE_REGEN,
-      file: paperKey,
-    });
-  }
-}
-function onDownloadFile(name: string) {
-  LA?.track(LAEventID.FEATURE, {
-    name: FeatureNames.CA_SAVE_DOWNLOAD,
-    file: name,
-  });
 }
 
 function actToggleMorePanel() {
   morePanelVisible.value = !morePanelVisible.value;
-  if (morePanelVisible.value) {
-    LA?.track(LAEventID.FEATURE, { name: FeatureNames.F_MORE });
-  }
 }
 
 function actAgeGrow() {
   if (!pc?.value) return;
   if (!pc.value.age || pc.value.age === '0') {
     ElMessage.error('请先在人物卡中填写年龄');
-    LA?.track(LAEventID.FEATURE, {
-      name: FeatureNames.MORE_AGE,
-      success: false,
-    });
     return;
   }
   pc.value.attributes = modifyAttributesByAge(pc.value.attributes, Number(pc.value.age || 0));
   ElMessage.success('已为您进行年龄修正！');
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.MORE_AGE, success: true });
 }
 
 function actResetCard() {
@@ -182,17 +141,14 @@ function actResetCard() {
 
   ElMessage.info('已重置人物卡');
   morePanelVisible.value = false;
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.MORE_RESET });
 }
 
 function actOpenInOutModal() {
   inOutModalVisible.value = true;
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.MORE_INOUT });
 }
 function copyOutData() {
   copy(outData.value);
   ElMessage.success('已复制到剪贴板');
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.CA_INOUT_EXPORT });
 }
 function applyInData() {
   const json = LZString.decompressFromEncodedURIComponent(inData.value);
@@ -214,13 +170,7 @@ function applyInData() {
   } else {
     ElMessage.error('数据有误，无法导入');
   }
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.CA_INOUT_IMPORT });
   pageData && (pageData.importing = false);
-}
-
-function actDownloadEmptyCard() {
-  downloadFile(cardPdf, '【TRPG 赛高】空白卡.pdf');
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.MORE_EMPTY });
 }
 
 function switchTotalMode() {
@@ -232,28 +182,7 @@ function switchTotalMode() {
     }`,
   );
   morePanelVisible.value = false;
-  LA?.track(LAEventID.FEATURE, {
-    name: FeatureNames.MORE_TOTAL_MODE,
-    mode: pageData.showTotalSeparation ? 'full' : 'simple',
-  });
 }
-
-function actReward() {
-  rewardModalVisible.value = true;
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.MORE_REWARD });
-}
-
-// preload qr codes when more panel is opened
-const cleanPreloadFn = watch(morePanelVisible, (visible) => {
-  if (visible) {
-    const img = new Image();
-    img.src = qrWechat;
-    nextTick(() => {
-      img.src = qrAlipay;
-    });
-    cleanPreloadFn();
-  }
-});
 </script>
 
 <template>
@@ -281,7 +210,6 @@ const cleanPreloadFn = watch(morePanelVisible, (visible) => {
       v-if="morePanelVisible"
       class="more-container"
       v-model="morePanelActiveTab"
-      @tabChange="onTabChange"
     >
       <el-tab-pane
         class="more-pane"
@@ -306,25 +234,11 @@ const cleanPreloadFn = watch(morePanelVisible, (visible) => {
           />
           <DiceMaid />
           <ControlButton
-            label="下载空白卡PDF"
-            :icon="Brush"
-            @click="actDownloadEmptyCard"
-          />
-          <ControlButton
             label="切换成功率模式"
             :icon="Mug"
             @click="switchTotalMode"
           />
-          <SimpleRollButton />
-          <ControlButton
-            label="投喂作者"
-            :icon="IceCream"
-            @click="actReward"
-          />
-          <!-- <NoticeBoardButton /> -->
         </div>
-        <!-- <IssueRow /> -->
-        <QunSection />
       </el-tab-pane>
       <el-tab-pane
         class="more-pane more-pane-less"
@@ -339,13 +253,6 @@ const cleanPreloadFn = watch(morePanelVisible, (visible) => {
         name="weapons"
       >
         <WeaponList />
-      </el-tab-pane>
-      <el-tab-pane
-        class="more-pane"
-        label="使用指南"
-        name="guide"
-      >
-        <GuidePaneContent />
       </el-tab-pane>
     </el-tabs>
 
@@ -365,7 +272,6 @@ const cleanPreloadFn = watch(morePanelVisible, (visible) => {
               type: 'jpg',
             }"
             @refresh="() => actPrintPaper('front')"
-            @downloaded="() => onDownloadFile('front')"
           />
           <DownloaderItem
             title="背面"
@@ -377,7 +283,6 @@ const cleanPreloadFn = watch(morePanelVisible, (visible) => {
               type: 'jpg',
             }"
             @refresh="() => actPrintPaper('back')"
-            @downloaded="() => onDownloadFile('back')"
           />
           <DownloaderItem
             title="车卡数据"
@@ -386,7 +291,6 @@ const cleanPreloadFn = watch(morePanelVisible, (visible) => {
               name: downloadName,
               type: 'txt',
             }"
-            @downloaded="() => onDownloadFile('data')"
           />
         </div>
         <div class="downloader-hints">
@@ -436,30 +340,6 @@ const cleanPreloadFn = watch(morePanelVisible, (visible) => {
     </ControlDialog>
 
     <!--  -->
-
-    <ControlDialog
-      v-model="rewardModalVisible"
-      title="投喂作者"
-    >
-      <div class="reward-modal-body">
-        <div class="reward-texts">
-          <div>喜欢这个工具？欢迎投喂！</div>
-          <div>本项目为 github pages 纯前端项目，所以不用担心停运哦！</div>
-        </div>
-        <div class="reward-qr-container">
-          <img
-            class="reward-qr"
-            :src="qrWechat"
-          />
-        </div>
-        <div class="reward-qr-container">
-          <img
-            class="reward-qr"
-            :src="qrAlipay"
-          />
-        </div>
-      </div>
-    </ControlDialog>
   </div>
 </template>
 

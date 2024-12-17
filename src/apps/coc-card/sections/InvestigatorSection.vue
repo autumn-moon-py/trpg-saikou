@@ -9,7 +9,6 @@ import RandNameRow from '../components/control-section-parts/rand-name/RandNameR
 
 // models
 import formattedJobs from '../models/job';
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 // @ts-ignore
 import vClickOutside from '@/directives/clickOutside';
@@ -73,10 +72,6 @@ function onSelectJob(jobName: string) {
   if (!pc) return;
   pc.value.job = jobName;
   closeJobSelector();
-  LA?.track(LAEventID.FEATURE, {
-    name: FeatureNames.PAPER_USE_JOB,
-    job: jobName,
-  });
 }
 </script>
 

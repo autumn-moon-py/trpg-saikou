@@ -4,8 +4,6 @@ import WritableRow from '../components/WritableRow.vue';
 
 import { usePC } from '../hooks/useProviders';
 
-import qr from '../assets/coc-card-qr.png';
-
 const pc = usePC();
 </script>
 

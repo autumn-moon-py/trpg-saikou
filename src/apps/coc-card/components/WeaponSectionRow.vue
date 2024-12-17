@@ -11,7 +11,6 @@ import type { FlattenTreeData } from '../types/flattenTree';
 
 import { createWeapon, weapons, weaponGroups, weaponGroupOrders } from '../models/weapon';
 import { skillGroups } from '../models/skill';
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 import { useToggle } from '@/utils/ui';
 import { usePC } from '../hooks/useProviders';
@@ -148,10 +147,6 @@ function onSelectWeapon(name: string) {
     ...rest,
   });
   hideWeaponSeletor();
-  LA?.track(LAEventID.FEATURE, {
-    name: FeatureNames.PAPER_USE_WEAPON,
-    weapon: name,
-  });
 }
 </script>
 
