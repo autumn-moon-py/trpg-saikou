@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import electron from 'vite-plugin-electron'
 
 // function getBase() {
 //   const { TARGET_ENV, NODE_ENV } = process.env;
@@ -15,7 +16,9 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig( {
-    plugins: [ vue() ],
+    plugins: [ vue(), electron( {
+        entry: 'electron/main/index.js',
+    } ) ],
     //   base: getBase(),
     base: './',
     resolve: {

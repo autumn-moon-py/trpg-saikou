@@ -8,14 +8,12 @@ import ControlButton from '../../ControlButton.vue';
 import NoticeBoardModal from './NoticeBoardModal.vue';
 
 // models
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 // const modalVisible = ref(false);
 const modalVisible = ref(true);
 
 function onButtonClick() {
   modalVisible.value = true;
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.MORE_NOTICE_BOARD });
 }
 </script>
 

@@ -6,7 +6,6 @@ import { ClickOutside } from 'element-plus';
 // models
 import { weapons, weaponGroups, weaponGroupOrders } from '../models/weapon';
 import type { Weapon } from '../types/weapon';
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 import { usePC } from '../hooks/useProviders';
 
@@ -72,10 +71,6 @@ function onHideApplyPopover() {
 function applyWeapon(index: number, weapon?: Weapon) {
   if (!pc || !weapon) return;
   pc.value.weapons[index] = weapon;
-  LA?.track(LAEventID.FEATURE, {
-    name: FeatureNames.PANE_USE_WEAPON,
-    weapon: weapon.name,
-  });
 }
 </script>
 

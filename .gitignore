@@ -33,3 +33,4 @@ src/local/*
 !src/local/*.example.ts
 
 .vercel
+/release/*

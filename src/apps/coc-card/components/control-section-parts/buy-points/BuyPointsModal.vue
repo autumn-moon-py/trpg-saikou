@@ -14,7 +14,6 @@ import {
   getLuckAttributesSum,
   withDefaultAttributes,
 } from '../../../models/attribute';
-import LA, { LAEventID, FeatureNames } from '@/plugins/51la';
 
 import { usePC } from '../../../hooks/useProviders';
 
@@ -54,8 +53,6 @@ function actionKeadeHandler() {
   actionKeadeSelectedKeysMap.value.luc = 'luc';
   actionKeadeDoing.value = true;
   actionKeadeGenerateCount.value++;
-  // 统计
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.PM_GEN_KAEDE });
 }
 function actionKeadeApplyHandler() {
   const picked = Object.values(actionKeadeSelectedKeysMap.value).filter(
@@ -72,7 +69,6 @@ function actionKeadeApplyHandler() {
     }
   });
   applyPoints(result);
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.PM_USE_KAEDE });
 }
 function actionKeadeCheckOptionDisabled(optionKey: COCAttributesKey) {
   return Object.values(actionKeadeSelectedKeysMap.value).some(
@@ -90,12 +86,9 @@ function actionRollHandler() {
     generateRandomAttributes(),
   );
   actionRollGenerateCount.value++;
-  // 统计
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.PM_GEN_ROLL });
 }
 function actionRollApplyHandler(result: COCAttributes) {
   applyPoints(result);
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.PM_USE_ROLL });
 }
 
 // 购点式相关
@@ -109,12 +102,9 @@ function actionBuyHandler() {
   resetStates();
   actionBuyDoing.value = true;
   actionBuyResult.value = withDefaultAttributes({});
-  // 统计
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.PM_GEN_BUY });
 }
 function actionBuyApplyHandler() {
   applyPoints(actionBuyResult.value);
-  LA?.track(LAEventID.FEATURE, { name: FeatureNames.PM_USE_BUY });
 }
 
 // shared

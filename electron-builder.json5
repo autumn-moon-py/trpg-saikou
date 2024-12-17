@@ -1,0 +1,29 @@
+/**
+ * @see https://www.electron.build/configuration/configuration
+ */
+{
+  appId: 'com.trpg.saikou',
+  asar: true,
+  icon: 'public/favicon.png',
+  copyright: 'Copyright © 2024 electron',
+  directories: {
+    output: 'release',
+  },
+  productName: 'COC车卡',
+  files: ['dist-electron', 'dist'],
+  win: {
+    target: [
+      {
+        target: 'nsis',
+        arch: ['x64'],
+      },
+    ],
+    artifactName: '${productName}_${version}.${ext}',
+  },
+  nsis: {
+    oneClick: false,
+    perMachine: false,
+    allowToChangeInstallationDirectory: true,
+    deleteAppDataOnUninstall: false,
+  },
+}
