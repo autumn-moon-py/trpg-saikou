@@ -6,7 +6,6 @@ export function downloadFile ( url: string, title: string )
     a.click()
 }
 
-// TODO 保存文件
 // export function downloadFile ( url: string, title: string )
 // {
 //     (window as any).downloadAndSaveFile(url, title);

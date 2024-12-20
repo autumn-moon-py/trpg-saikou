@@ -17,6 +17,7 @@ import useAppLs from './hooks/useAppLs';
 import ControlSection from './sections/ControlSection.vue';
 import PaperFront from './PaperFront.vue';
 import PaperBack from './PaperBack.vue';
+import { ElMessage } from 'element-plus';
 
 const qsObject = qs.parse(location.search.slice(1));
 const pcRef = ref<COCPlayerCharacter>(createPC());
@@ -28,6 +29,7 @@ const pageData = reactive<PageData>({
   importing: false,
   showTotalSeparation: qsObject.sep === 'true' || ls.getItem('showTotalSeparation') || false,
 });
+const controlSectionRef = ref(null);
 
 watch(
   () => pageData.showTotalSeparation,
@@ -54,12 +56,45 @@ provide('suggestion', suggestion);
 
 const paperEls = reactive<{ front?: HTMLElement; back?: HTMLElement }>({});
 
-// window.xx = { pc: pcRef, viewData, pageData };
+const handleDragOver = (event) => {
+  // 防止默认处理（默认不允许放置）
+  event.preventDefault();
+};
+
+const handleDrop = (event) => {
+  event.preventDefault();
+  const files = event.dataTransfer.files;
+  if (files.length > 0) {
+    const file = files[0];
+    if (file.type === 'text/plain') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target.result;
+        processText(text);
+      };
+      reader.readAsText(file);
+    } else {
+      console.error('不支持的文件类型');
+    }
+  }
+};
+
+const processText = (text) => {
+  ElMessage.success('导入卡数据中');
+  if (controlSectionRef.value) {
+    controlSectionRef.value.inData = text;
+    controlSectionRef.value.applyInData();
+  }
+};
 </script>
 
 <template>
   <main class="page theme-dark">
-    <div class="paper-container theme-light">
+    <div
+      class="paper-container theme-light"
+      @drop="handleDrop"
+      @dragover.prevent="handleDragOver"
+    >
       <div class="papers-animation-container papers-editing web-only">
         <Transition name="swipe-paper">
           <KeepAlive>
@@ -92,6 +127,7 @@ const paperEls = reactive<{ front?: HTMLElement; back?: HTMLElement }>({});
     </div>
     <div class="sticky-footer web-only">
       <ControlSection
+        ref="controlSectionRef"
         :paperEls="paperEls"
         @switch-paper="() => (pageData.paperInFront = !pageData.paperInFront)"
       />
