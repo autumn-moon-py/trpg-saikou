@@ -3,10 +3,10 @@ const path = require('node:path');
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1080,
+    height: 720,
     // 禁用工具栏
-    // frame: false,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
     },
@@ -16,7 +16,7 @@ const createWindow = () => {
 
   mainWindow.once('ready-to-show', () => {
     // 最大化窗口
-    // mainWindow.maximize();
+    mainWindow.maximize();
     // 显示窗口
     mainWindow.show();
   });

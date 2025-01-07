@@ -25,5 +25,6 @@
     perMachine: false,
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false,
+    createDesktopShortcut: false,
   },
 }

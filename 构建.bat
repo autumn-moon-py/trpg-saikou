@@ -1,2 +1,1 @@
-yarn build
-pause
+cmd /k "yarn build"

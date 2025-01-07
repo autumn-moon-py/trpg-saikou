@@ -11,8 +11,6 @@ import {
   Scissor,
   Refresh,
   DocumentCopy,
-  IceCream,
-  Brush,
   Mug,
 } from '@element-plus/icons-vue';
 
@@ -33,10 +31,8 @@ import { resetViewData } from '../models/viewData';
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
 import useAppLs from '../hooks/useAppLs';
-import { downloadFile } from '@/utils/file';
 
 import type { COCCardViewData } from '../types/viewData';
-import cardPdf from '../assets/coc-card-empty.pdf';
 
 interface Props {
   paperEls: {
@@ -79,7 +75,6 @@ const outDataUrl = computed(() => {
 
 const inOutModalVisible = ref(false);
 const downloadModalVisible = ref(false);
-const rewardModalVisible = ref(false);
 const morePanelVisible = ref(false);
 const morePanelActiveTab = ref('features');
 
