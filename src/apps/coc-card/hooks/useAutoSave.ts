@@ -38,13 +38,12 @@ export default function useAutoSave (
             deep: true,
         },
     )
-    // TODO 自动导入上次卡
+
     if ( autoSaved )
     {
         nextTick( () =>
         {
             let vnode
-            // 不知道为什么 timeAgo.value 可能会报错
             try
             {
                 vnode = h( Fragment, null, [

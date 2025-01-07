@@ -1,47 +1,19 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 import ControlDialog from '../components/ControlDialog.vue';
-import AvatarModalContent from '../components/AvatarModalContent.vue';
-import { usePC, usePageData } from '../hooks/useProviders';
-import { SdAvatarDomain, SdAvatarOutputPath } from '../constants/sdAvatar';
-
-const pc = usePC();
-const pageData = usePageData();
 
 const isModalShown = ref(false);
-const avatarUrl = computed(() => {
-  const sdUrl = pc?.value.sdAvatar
-    ? `${SdAvatarDomain}${SdAvatarOutputPath}/${pc?.value.sdAvatar}.jpg`
-    : '';
-  return pc?.value.avatar || sdUrl || '';
-});
 </script>
 
 <template>
-  <div
-    class="avatar-section"
-    :class="{
-      'printing-image': pageData?.printing,
-    }"
-    :style="{ 'background-image': avatarUrl ? `url(${avatarUrl})` : 'none' }"
-    @click="isModalShown = true"
+  <ControlDialog
+    class="coc-card-avatar-modal"
+    title="设置形象"
+    v-model="isModalShown"
   >
-    <div
-      class="avatar-placeholder"
-      v-if="!avatarUrl"
-    >
-      <div>设置形象</div>
-    </div>
-
-    <ControlDialog
-      class="coc-card-avatar-modal"
-      title="设置形象"
-      v-model="isModalShown"
-    >
-      <AvatarModalContent @finished="isModalShown = false" />
-    </ControlDialog>
-  </div>
+    <AvatarModalContent @finished="isModalShown = false" />
+  </ControlDialog>
 </template>
 
 <style scoped lang="scss">

@@ -11,13 +11,13 @@ import type { PageData } from './types/pageData';
 
 import useDerives from './hooks/useDerives';
 import useSuggestion from './hooks/useSuggestion';
-import useAutoSave from './hooks/useAutoSave';
 import useAppLs from './hooks/useAppLs';
 
 import ControlSection from './sections/ControlSection.vue';
 import PaperFront from './PaperFront.vue';
 import PaperBack from './PaperBack.vue';
 import { ElMessage } from 'element-plus';
+import FileList from './components/FileList.vue';
 
 const qsObject = qs.parse(location.search.slice(1));
 const pcRef = ref<COCPlayerCharacter>(createPC());
@@ -29,7 +29,7 @@ const pageData = reactive<PageData>({
   importing: false,
   showTotalSeparation: qsObject.sep === 'true' || ls.getItem('showTotalSeparation') || false,
 });
-const controlSectionRef = ref(null);
+const controlSectionRef = ref(ControlSection);
 
 watch(
   () => pageData.showTotalSeparation,
@@ -44,10 +44,11 @@ const suggestion = useSuggestion(pcRef, {
   pageData,
 });
 
-useAutoSave(pcRef, {
-  viewData,
-  pageData,
-});
+// import useAutoSave from './hooks/useAutoSave';
+// useAutoSave(pcRef, {
+//   viewData,
+//   pageData,
+// });
 
 provide('pc', pcRef);
 provide('viewData', viewData);
@@ -56,20 +57,23 @@ provide('suggestion', suggestion);
 
 const paperEls = reactive<{ front?: HTMLElement; back?: HTMLElement }>({});
 
-const handleDragOver = (event) => {
-  // 防止默认处理（默认不允许放置）
+const handleDragOver = (event: DragEvent) => {
   event.preventDefault();
 };
 
-const handleDrop = (event) => {
+const handleDrop = (event: DragEvent) => {
   event.preventDefault();
+  if (!event.dataTransfer) {
+    console.error('数据传输对象为空');
+    return;
+  }
   const files = event.dataTransfer.files;
   if (files.length > 0) {
     const file = files[0];
     if (file.type === 'text/plain') {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const text = e.target.result;
+        const text = e.target!.result;
         processText(text);
       };
       reader.readAsText(file);
@@ -79,16 +83,20 @@ const handleDrop = (event) => {
   }
 };
 
-const processText = (text) => {
+const processText = (text: string | ArrayBuffer | null) => {
   ElMessage.success('导入卡数据中');
   if (controlSectionRef.value) {
     controlSectionRef.value.inData = text;
     controlSectionRef.value.applyInData();
+    controlSectionRef.value.inData = '';
   }
 };
 </script>
 
 <template>
+  <div>
+    <FileList :processText="processText" />
+  </div>
   <main class="page theme-dark">
     <div
       class="paper-container theme-light"
@@ -157,8 +165,8 @@ const processText = (text) => {
   overflow: hidden;
 }
 .papers-animation-container.papers-editing {
-  width: 65.625em; // 210mm / 3.2mm
-  min-height: 92.8125em; // 297mm / 3.2mm
+  width: 65.625em;
+  min-height: 92.8125em;
   margin: auto;
 }
 .papers-editing {
@@ -188,7 +196,6 @@ const processText = (text) => {
   }
 }
 
-/* when print */
 @media print {
   .page {
     width: auto;

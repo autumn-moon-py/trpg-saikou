@@ -1,2 +1,1 @@
-yarn buildexe
-pause
+cmd /k "yarn buildexe"
