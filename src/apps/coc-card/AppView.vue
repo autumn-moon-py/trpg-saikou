@@ -91,11 +91,16 @@ const processText = (text: string | ArrayBuffer | null) => {
     controlSectionRef.value.inData = '';
   }
 };
+
+const isFull = window.innerWidth > window.innerHeight;
 </script>
 
 <template>
   <div>
-    <FileList :processText="processText" />
+    <FileList
+      v-if="isFull"
+      :processText="processText"
+    />
   </div>
   <main class="page theme-dark">
     <div
