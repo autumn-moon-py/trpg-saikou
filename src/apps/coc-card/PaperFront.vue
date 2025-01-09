@@ -4,7 +4,7 @@ import type { VNodeRef } from 'vue';
 import PaperLayout from './layouts/PaperLayout.vue';
 import InvestigatorSection from './sections/InvestigatorSection.vue';
 import AttributesSection from './sections/AttributesSection.vue';
-import LuckSection from './sections/LuckSection.vue';
+// import LuckSection from './sections/LuckSection.vue';
 import AvatarSection from './sections/AvatarSection.vue';
 import DeriveSections from './sections/DeriveSections.vue';
 import HintSection from './sections/HintSection.vue';
@@ -23,7 +23,7 @@ defineProps<Props>();
     <div class="section-row">
       <InvestigatorSection />
       <AttributesSection />
-      <LuckSection class="col-0" />
+      <!-- <LuckSection class="col-0" /> -->
       <AvatarSection />
     </div>
     <DeriveSections />

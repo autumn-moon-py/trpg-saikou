@@ -31,6 +31,7 @@ const rightList: RenderListItem[] = [
   { key: 'siz', label: '体型', hint: 'SIZ' },
   { key: 'edu', label: '教育', hint: '知识 EDU' },
   { key: 'int', label: '智力', hint: '灵感 INT' },
+  { key: 'luc', label: '幸运', hint: 'LUK' },
 ];
 
 const sum = computed(() => {
@@ -72,24 +73,20 @@ function actRoll() {
   >
     <div class="info-section">
       <div class="attributes-group">
-        <div class="dice-hint">🎲 3D6×5</div>
         <WritableRow
           v-for="item in leftList"
           :key="item.key"
           :label="item.label"
-          :hint="item.hint"
           :modelValue="`${pc?.attributes[item.key] ?? ''}`"
           @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
         />
       </div>
       <div class="divider"></div>
       <div class="attributes-group">
-        <div class="dice-hint">🎲 (2D6+6)×5</div>
         <WritableRow
           v-for="item in rightList"
           :key="item.key"
           :label="item.label"
-          :hint="item.hint"
           :modelValue="`${pc?.attributes[item.key] ?? ''}`"
           @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
         />
@@ -133,6 +130,8 @@ function actRoll() {
 }
 
 .attributes-actions {
+  margin-top: 10px;
+  margin-bottom: 10px;
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
