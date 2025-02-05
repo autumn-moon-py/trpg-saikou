@@ -157,7 +157,10 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
                 {
                     total = realInit
                 }
-                skillString += `${ childSkillName }${ total }`
+                if ( childSkillName != '步/霰' )
+                {
+                    skillString += `${ childSkillName }${ total }`
+                }
                 // aliases
                 const aliases = skillNameAlias[ childSkillName ]
                 if ( aliases )
