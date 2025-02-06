@@ -2,10 +2,7 @@
 原项目是有用github-pages部署在线网页的,但因为众所周知的原因,平时比较难访问,折腾过vercel和其他在线部署静态网页的平台都不行后,就试着用Hbuilderx打包APP出来了,不过仅打包了车卡工具出来,其他的几个后续看大家意愿再打包
 
 # 下载
-https://file.486486486.xyz/trpg_saikou_1.1.apk
-https://r2.subrecovery.top/trpg_saikou_1.1.apk
-https://github.com/autumn-moon-py/trpg-saikou/releases/tag/v1.1
-https://wwqf.lanzouw.com/iAzw32dke35i 密码:206j
+https://wwqf.lanzouw.com/i32TI2mwazif 密码:9s4r
 
 ## 打包
 
