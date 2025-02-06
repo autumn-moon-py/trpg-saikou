@@ -4168,7 +4168,7 @@ function Ms(t, e) {
           const { b: T = S ? W : 0, p: K = 0, i: re = 0, g: fe = 0 } = G;
           M = T + K + re + fe;
         } else x.show.includes(D) && (M = W);
-        w += `${D}${M}`;
+        D != "步/霰" && (w += `${D}${M}`);
         const te = Yr[D];
         te && (w += te.map((T) => `${T}${M}`).join("")), delete P[U];
       }), S === "母语")
