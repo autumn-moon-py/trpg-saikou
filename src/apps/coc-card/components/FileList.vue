@@ -86,7 +86,8 @@ export default defineComponent({
   flex-direction: column;
   overflow-y: auto;
   z-index: 1000;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 .file-selector-container input[type='file'] {
