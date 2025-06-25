@@ -3,8 +3,8 @@
     "id" : "H5DE094C7", /*应用的标识*/
     "name" : "trpg_saikou", /*应用名称，程序桌面图标名称*/
     "version" : {
-        "name" : "1.0.8", /*应用版本名称*/
-        "code" : 108
+        "name" : "1.0.9", /*应用版本名称*/
+        "code" : 109
     },
     "description" : "", /*应用描述信息*/
     "icons" : {
@@ -135,7 +135,7 @@
                     "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\"/>",
                     "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\"/>"
                 ],
-                "abiFilters" : [ "arm64-v8a" ]
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86" ]
             },
             /*使用Native.js调用原生安卓API需要使用到的系统权限*/
             "orientation" : [ "portrait-primary" ], /*应用支持的方向，portrait-primary：竖屏正方向；portrait-secondary：竖屏反方向；landscape-primary：横屏正方向；landscape-secondary：横屏反方向*/

@@ -16,11 +16,6 @@ const router = createRouter( {
             ? createWebHistory( import.meta.env.BASE_URL )
             : createWebHashHistory( import.meta.env.BASE_URL ),
     routes: [
-        // {
-        //   path: '/',
-        //   name: 'home',
-        //   component: () => import('../apps/home/AppView.vue'),
-        // },
         {
             path: '/',
             name: 'coc-card',
@@ -29,39 +24,6 @@ const router = createRouter( {
                 title: 'COC 车卡',
             },
         },
-        // {
-        //     path: '/erp-card',
-        //     name: 'erp-card',
-        //     component: () => import( '../apps/erp-card/AppView.vue' ),
-        //     meta: {
-        //         title: 'ERP 车卡',
-        //     },
-        // },
-        // {
-        //     path: '/kp',
-        //     name: 'kp-ads',
-        //     component: () => import( '../apps/kp-ads/AppView.vue' ),
-        // },
-        // {
-        //     path: '/timer',
-        //     name: 'timer',
-        //     component: () => import( '../apps/timer/AppView.vue' ),
-        // },
-        // {
-        //     path: '/roll',
-        //     name: 'roll',
-        //     component: () => import( '../apps/roll/AppView.vue' ),
-        // },
-        // {
-        //     path: '/tfg-stories',
-        //     name: 'tfg-stories',
-        //     component: () => import( '../apps/record/StoryListView.vue' ),
-        // },
-        // {
-        //     path: '/self',
-        //     name: 'self',
-        //     component: () => import( '../apps/record/SelfView.vue' ),
-        // },
     ],
 } )
 
