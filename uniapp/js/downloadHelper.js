@@ -5,7 +5,7 @@ function downloadAndSaveFile(url, title) {
       console.log('保存图片');
       saveBase64ToFile(url, title);
     } else {
-      alert("本版本无法保存txt,请前往原项目的网页");
+      alert("本版本无法保存txt,请前往更多－导入/导出数据自行复制");
     }
   } catch (e) {
     console.log(e);
