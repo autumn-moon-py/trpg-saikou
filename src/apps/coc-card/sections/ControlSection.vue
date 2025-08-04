@@ -179,6 +179,16 @@ function switchTotalMode() {
   morePanelVisible.value = false;
 }
 
+async function actReadClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    inData.value = text;
+    applyInData();
+  } catch (err) {
+    ElMessage.error('无法读取剪贴板');
+  }
+}
+
 defineExpose({ inData, applyInData });
 </script>
 
@@ -195,6 +205,11 @@ defineExpose({ inData, applyInData });
         label="保存"
         :icon="Download"
         @click="() => actPrintPaper()"
+      />
+      <ControlButton
+        label="读取剪贴板"
+        :icon="DocumentCopy"
+        @click="actReadClipboard"
       />
       <ControlButton
         label="更多"
