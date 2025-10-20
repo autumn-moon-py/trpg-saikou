@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, reactive, defineExpose } from 'vue';
-import { ElMessage } from 'element-plus';
+import { computed, nextTick, ref, reactive, defineExpose, h,Fragment } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
 
@@ -31,6 +31,7 @@ import { resetViewData } from '../models/viewData';
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
 import useAppLs from '../hooks/useAppLs';
+import useZhTimeAgo from '@/hooks/useZhTimeAgo';
 
 import type { COCCardViewData } from '../types/viewData';
 
@@ -189,6 +190,52 @@ async function actReadClipboard() {
   }
 }
 
+// TODO 读取历史
+function actLoadHistory() {
+  const autoSaved = ls.getItem('autoSaved');
+  if (!autoSaved) {
+    ElMessage.info('没有找到历史记录');
+    return;
+  }
+
+  const { lastModified, pc: savedPC, viewData: savedViewData } = autoSaved;
+  const { timeAgo } = useZhTimeAgo(lastModified || Date.now());
+
+  let vnode;
+  try {
+    vnode = h(Fragment, null, [
+      '是否加载您',
+      h('b', { style: { fontWeight: 'bold' } }, timeAgo.value),
+      '编辑的人物卡',
+      savedPC?.name ? `：${savedPC.name}` : '',
+    ]);
+  } catch (e) {
+    ElMessage.error('加载历史记录失败');
+    return;
+  }
+
+  ElMessageBox.confirm(vnode, '检测到编辑过的人物卡').then(() => {
+    if (!pageData || !pc || !viewData) return;
+
+    pageData.importing = true;
+    pc.value = savedPC;
+
+    if (savedViewData) {
+      Object.keys(savedViewData).forEach((key) => {
+        const k = key as keyof COCCardViewData;
+        viewData[k] = savedViewData[k] as any;
+      });
+    }
+
+    nextTick(() => {
+      if (pageData) pageData.importing = false;
+      ElMessage.success('已加载历史记录');
+    });
+  }).catch(() => {
+    // 用户取消加载
+  });
+}
+
 defineExpose({ inData, applyInData });
 </script>
 
@@ -243,6 +290,11 @@ defineExpose({ inData, applyInData });
             label="导入/导出数据"
             :icon="DocumentCopy"
             @click="actOpenInOutModal"
+          />
+          <ControlButton
+            label="读取历史"
+            :icon="DocumentCopy"
+            @click="actLoadHistory"
           />
           <DiceMaid />
           <ControlButton
@@ -325,7 +377,7 @@ defineExpose({ inData, applyInData });
             :rows="16"
             :readonly="true"
             resize="none"
-          />
+          ></el-input>
           <el-button
             type="primary"
             @click="copyOutData"
@@ -340,7 +392,7 @@ defineExpose({ inData, applyInData });
             :rows="16"
             placeholder="将文本粘贴到这里"
             resize="none"
-          />
+          ></el-input>
           <el-button
             type="primary"
             @click="applyInData"

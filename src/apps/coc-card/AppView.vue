@@ -45,11 +45,11 @@ const suggestion = useSuggestion(pcRef, {
 });
 
 // TODO 自动导入
-//import useAutoSave from './hooks/useAutoSave';
-//useAutoSave(pcRef, {
-//  viewData,
-//  pageData,
-//});
+import useAutoSave from './hooks/useAutoSave';
+useAutoSave(pcRef, {
+  viewData,
+  pageData,
+});
 
 provide('pc', pcRef);
 provide('viewData', viewData);

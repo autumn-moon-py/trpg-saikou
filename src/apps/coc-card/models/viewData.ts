@@ -1,34 +1,39 @@
-import { resetShowingChildSkills } from '../models/skill';
+import { resetShowingChildSkills } from '../models/skill'
 
-import type { COCCardViewData } from '../types/viewData';
+import type { COCCardViewData } from '../types/viewData'
 
-interface ViewDataCreateOption {
-  limitp?: number;
-  limiti?: number;
+interface ViewDataCreateOption
+{
+    limitp?: number
+    limiti?: number
 }
 
 const storedOption: ViewDataCreateOption = {
-  limitp: 70,
-  limiti: 50,
-};
-
-function defaultViewData(): COCCardViewData {
-  return {
-    showingChildSkills: resetShowingChildSkills(),
-    skillLimits: {
-      pro: storedOption?.limitp || 70,
-      interest: storedOption?.limiti || 50,
-    },
-  };
+    limitp: 70,
+    limiti: 50,
 }
 
-export function createViewData(
-  option?: Partial<ViewDataCreateOption>,
-): COCCardViewData {
-  Object.assign(storedOption, option);
-  return defaultViewData();
+function defaultViewData (): COCCardViewData
+{
+    return {
+        showingChildSkills: resetShowingChildSkills(),
+        skillLimits: {
+            // TODO 技能上限
+            pro: storedOption?.limitp || 80,
+            interest: storedOption?.limiti || 70,
+        },
+    }
 }
 
-export function resetViewData(viewData: COCCardViewData) {
-  Object.assign(viewData, defaultViewData());
+export function createViewData (
+    option?: Partial<ViewDataCreateOption>,
+): COCCardViewData
+{
+    Object.assign( storedOption, option )
+    return defaultViewData()
+}
+
+export function resetViewData ( viewData: COCCardViewData )
+{
+    Object.assign( viewData, defaultViewData() )
 }
