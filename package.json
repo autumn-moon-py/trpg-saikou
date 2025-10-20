@@ -1,6 +1,6 @@
 {
     "name": "trpg-saikou",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "private": true,
     "main": "dist-electron/index.js",
     "scripts": {
