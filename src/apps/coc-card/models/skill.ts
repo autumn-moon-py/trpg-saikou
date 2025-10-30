@@ -64,6 +64,7 @@ export function resetShowingChildSkills ( viewData?: COCCardViewData )
     return map
 }
 
+// TODO 骰娘指令
 // 获取 pc 的数据，返回这个结构的字符串
 // 第一部分——属性：力量60str60敏捷60dex60……
 // 第二部分——衍生属性：hp12体力12mp12魔法12san60理智60san值60
@@ -85,11 +86,15 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
     const {
         hp = { start: 0 },
         mp = { start: 0 },
-        sanity: san = { start: 0 },
+        sanity: san = { now: 0, start: 0 },
     } = deriveAttributes || {}
+    if ( san.now == null || san.now == 0 )
+    {
+        san.now = san.start
+    }
     // 骰娘导入 带名字
     const attributesString = `${ pc.name }-力量${ str }str${ str }敏捷${ dex }dex${ dex }体质${ con }con${ con }外貌${ app }app${ app }智力${ int }灵感${ int }int${ int }意志${ pow }pow${ pow }体型${ siz }siz${ siz }教育${ edu }edu${ edu }幸运${ luc }运气${ luc }luck${ luc }`
-    const deriveAttributesString = `hp${ hp.start }体力${ hp.start }mp${ mp.start }魔法${ mp.start }san${ san.start }理智${ san.start }理智值${ san.start }san值${ san.start }`
+    const deriveAttributesString = `hp${ hp.start }体力${ hp.start }mp${ mp.start }魔法${ mp.start }san${ san.now }理智${ san.now }理智值${ san.now }san值${ san.now }`
     let skillString = ''
 
     const pcPointsMap: Record<string, SkillPoint> = {}
