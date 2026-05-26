@@ -5,9 +5,11 @@ interface Props {
     value: string;
     label: string;
   }[];
+  disabled?: boolean;
 }
 withDefaults(defineProps<Props>(), {
   value: '',
+  disabled: false,
 });
 
 interface Emits {
@@ -20,6 +22,7 @@ defineEmits<Emits>();
   <select
     class="base-td-select"
     :value="value"
+    :disabled="disabled"
     @change="$emit('change', ($event.target as HTMLInputElement).value)"
   >
     <option

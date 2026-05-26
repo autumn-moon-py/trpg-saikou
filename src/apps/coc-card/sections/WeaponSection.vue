@@ -11,7 +11,7 @@ import { usePC } from '../hooks/useProviders';
 const pc = usePC();
 
 const localWeapons = computed<(Weapon | undefined)[]>(() => {
-  return Array.from({ length: 5 }).map((_, index) => {
+  return Array.from({ length: 4 }).map((_, index) => {
     return pc?.value.weapons[index] || undefined;
   });
 });
@@ -40,6 +40,7 @@ const localWeapons = computed<(Weapon | undefined)[]>(() => {
         :key="index"
         :index="index"
         :weapon="weapon"
+        :readonly="index === 0"
       />
     </div>
   </PaperSection>

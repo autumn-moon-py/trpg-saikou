@@ -168,4 +168,32 @@ export const jobGroups: JobGroup[] = [
             [ '工会活动家', 'gonghuihuodongjia' ],
         ],
     ],
+    [
+        [ '日本秘史', 'ribenmishi' ],
+        [
+            [ '暴走族', 'baozouzu' ],
+            [ '风水师', 'fengshuishi' ],
+            [ '家传降妖人', 'jiachuanjiangyaoren' ],
+            [ '日本教授', 'ribenjiaoshou' ],
+            [ '言灵师', 'yanlingshi' ],
+            [ '宫司', 'gongsi' ],
+            [ '炼丹师', 'liandanshi' ],
+            [ '黑帮', 'heibang' ],
+            [ '武术导师', 'wushudaoshi' ],
+            [ '忍者', 'renzhe' ],
+        ],
+    ],
+    [
+        [ '日本现代', 'ribenxiandai' ],
+        [
+            [ '舞者', 'wuzhe' ],
+            [ '冒险家教授', 'maoxianjiajiaoshou' ],
+            [ '偶像', 'ouxiang' ],
+            [ '歌手', 'geshou' ],
+            [ '网络明星', 'wangluomingxing' ],
+            [ '经纪人', 'jingjiren' ],
+            [ '机械师', 'jixieshi' ],
+            [ '厨师', 'chushi' ],
+        ],
+    ],
 ]

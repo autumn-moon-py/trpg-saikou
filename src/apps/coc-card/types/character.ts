@@ -16,6 +16,7 @@ export interface COCPlayerCharacter {
   attributes: Partial<COCAttributes>;
   deriveAttributes?: COCDeriveAttributes;
   battleAttributes: COCBattleAttributes;
+  status: COCStatus;
   // 技能与点数
   pointValues: {
     pro?: string;
@@ -39,8 +40,7 @@ export interface COCPlayerCharacter {
   };
   // assets
   assets: {
-    cash: string; // 现金
-    consumption: string; // 消费水平
+    currency: string; // 货币
     assets: string; // 资产
     items: string; // 物品
     magicItems: string; // 魔法物品与典籍
@@ -85,8 +85,17 @@ export interface COCDeriveAttributes {
 export interface COCBattleAttributes {
   db?: string;
   size?: string;
-  armor?: string;
   mov?: string;
+}
+
+export interface COCStatus {
+  mental: COCMentalStatus;
+}
+
+export interface COCMentalStatus {
+  hardened: boolean;
+  permanentMadness: boolean;
+  indefiniteMadness: boolean;
 }
 
 // 技能名 | 技能名, 子技能名, 子技能位置

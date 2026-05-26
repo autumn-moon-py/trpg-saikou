@@ -9,8 +9,8 @@ interface ViewDataCreateOption
 }
 
 const storedOption: ViewDataCreateOption = {
-    limitp: 70,
-    limiti: 50,
+    limitp: 80,
+    limiti: 70,
 }
 
 function defaultViewData (): COCCardViewData

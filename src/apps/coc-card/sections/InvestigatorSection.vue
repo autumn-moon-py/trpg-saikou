@@ -5,7 +5,6 @@ import { ref, computed, watch } from 'vue';
 import PaperSection from '../components/PaperSection.vue';
 import WritableRow from '../components/WritableRow.vue';
 import FlattenTree from '../components/FlattenTree.vue';
-import RandNameRow from '../components/control-section-parts/rand-name/RandNameRow.vue';
 
 // models
 import formattedJobs from '../models/job';
@@ -87,86 +86,74 @@ function onSelectJob(jobName: string) {
         'printing-image': pageData?.printing,
       }"
     >
-      <div class="name-row">
-        <div class="col-0">
-          <WritableRow
-            label="姓名"
-            placeholder="角色姓名"
-            v-model="pc.name"
-          />
-        </div>
-        <RandNameRow />
-      </div>
-      <WritableRow
-        label="玩家"
-        placeholder="玩家昵称"
-        v-model="pc.playerName"
-      />
-      <WritableRow
-        label="时代"
-        v-model="pc.time"
-      />
-      <!-- pc job selector -->
-      <div
-        class="rel only-wide"
-        v-click-outside="closeJobSelector"
-      >
+      <div class="info-row">
         <WritableRow
-          label="职业"
-          v-model="pc.job"
-          placeholder="自定义职业或选择预设职业"
-          @focus="openJobSelector"
+          label="姓名"
+          :char="5"
+          v-model="pc.name"
         />
-        <Transition name="slide-up">
-          <div
-            v-if="isJobSeletorShowing"
-            class="job-selector"
-          >
-            <div class="job-selector-header">
-              <input
-                class="job-search-input"
-                type="text"
-                placeholder="输入职业名称或拼音可以进行搜索"
-                v-model="jobSearchInput"
+        <WritableRow
+          label="玩家"
+          :char="5"
+          v-model="pc.playerName"
+        />
+      </div>
+      <div class="info-row">
+        <WritableRow
+          label="时代"
+          :char="5"
+          v-model="pc.time"
+        />
+        <!-- pc job selector -->
+        <div
+          class="rel only-wide"
+          v-click-outside="closeJobSelector"
+        >
+          <WritableRow
+            label="职业"
+            :char="5"
+            v-model="pc.job"
+            @focus="openJobSelector"
+          />
+          <Transition name="slide-up">
+            <div
+              v-if="isJobSeletorShowing"
+              class="job-selector"
+            >
+              <div class="job-selector-header">
+                <input
+                  class="job-search-input"
+                  type="text"
+                  placeholder="输入职业名称或拼音可以进行搜索"
+                  v-model="jobSearchInput"
+                />
+              </div>
+              <FlattenTree
+                :tree="jobTree"
+                @select="(item) => onSelectJob(item.label)"
               />
             </div>
-            <FlattenTree
-              :tree="jobTree"
-              @select="(item) => onSelectJob(item.label)"
-            />
-          </div>
-        </Transition>
-      </div>
-      <!-- mobile job selector -->
-      <div class="only-compact">
-        <WritableRow
-          label="职业"
-          v-model="pc.job"
-          placeholder="自定义或从“更多”→“职业列表”中选择"
-        />
+          </Transition>
+        </div>
+        <!-- mobile job selector -->
+        <div class="only-compact">
+          <WritableRow
+            label="职业"
+            :char="5"
+            v-model="pc.job"
+          />
+        </div>
       </div>
       <div class="info-row">
         <WritableRow
           label="年龄"
-          :char="6"
+          :char="5"
           v-model="pc.age"
         />
         <WritableRow
           label="性别"
-          :char="6"
+          :char="5"
           v-model="pc.gender"
-        />
-      </div>
-      <div class="info-row">
-        <WritableRow
-          label="住地"
-          :char="6"
-          v-model="pc.location"
-        />
-        <WritableRow
-          label="故乡"
-          :char="6"
-          v-model="pc.hometown"
         />
       </div>
     </div>
@@ -178,13 +165,12 @@ function onSelectJob(jobName: string) {
   display: flex;
   gap: 1em;
 
-  & :deep(.writable-row) {
+  & > * {
     flex: 1 1 auto;
   }
 }
 
 .info-section {
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

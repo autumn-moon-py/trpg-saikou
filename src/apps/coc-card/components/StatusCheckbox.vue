@@ -6,6 +6,16 @@ interface Props {
 withDefaults(defineProps<Props>(), {
   checked: false,
 });
+
+interface Emits {
+  (event: 'check', value: boolean): void;
+}
+const emit = defineEmits<Emits>();
+
+function onChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  emit('check', target.checked);
+}
 </script>
 
 <template>
@@ -14,6 +24,7 @@ withDefaults(defineProps<Props>(), {
       type="checkbox"
       class="checkbox"
       :checked="checked"
+      @change="onChange"
     />
     <div class="label">{{ label }}</div>
   </label>

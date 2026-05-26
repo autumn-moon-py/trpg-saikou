@@ -5,6 +5,7 @@ import { ElMessageBox } from 'element-plus'
 import type { COCPlayerCharacter } from '../types/character'
 import type { PageData } from '../types/pageData'
 import type { COCCardViewData } from '../types/viewData'
+import { createPC } from '../models/character'
 
 import useZhTimeAgo from '@/hooks/useZhTimeAgo'
 import useAppLs from './useAppLs'
@@ -59,7 +60,7 @@ export default function useAutoSave (
             ElMessageBox.confirm( vnode, '检测到编辑过的人物卡', { showClose: false } ).then( () =>
             {
                 pageData.importing = true
-                pcRef.value = savedPC!
+                pcRef.value = createPC( savedPC! )
                 if ( savedViewData )
                 {
                     Object.keys( savedViewData ).forEach( ( key ) =>
