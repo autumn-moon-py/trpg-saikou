@@ -1,9 +1,11 @@
 <script setup lang="ts">
 interface Props {
   value?: string;
+  readonly?: boolean;
 }
 withDefaults(defineProps<Props>(), {
   value: '',
+  readonly: false,
 });
 
 interface Emits {
@@ -24,6 +26,7 @@ function handleFocus(event: FocusEvent) {
     type="text"
     class="base-td-input"
     :value="value"
+    :readonly="readonly"
     @input="$emit('input', ($event.target as HTMLInputElement).value)"
     @focus="handleFocus"
   />

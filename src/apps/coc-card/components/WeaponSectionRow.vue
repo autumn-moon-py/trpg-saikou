@@ -20,8 +20,11 @@ import vClickOutside from '@/directives/clickOutside';
 interface Props {
   index: number;
   weapon?: Weapon;
+  readonly?: boolean;
 }
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false,
+});
 
 interface Emits {
   (event: 'input', value: string): void;
@@ -164,8 +167,9 @@ function onSelectWeapon(name: string) {
       >
         <BaseTdInput
           :value="weapon.name"
+          :readonly="props.readonly"
           @input="(val) => updatePCWeapon({ name: val })"
-          @focus="() => showWeaponSeletor()"
+          @focus="() => !props.readonly && showWeaponSeletor()"
         />
         <Transition name="slide-down">
           <div
@@ -191,6 +195,7 @@ function onSelectWeapon(name: string) {
         class="hide-in-print"
         :value="weapon.skill"
         :options="battleSkillOptions"
+        :disabled="props.readonly"
         @change="(val) => updatePCWeapon({ skill: val })"
       />
     </div>
@@ -216,6 +221,7 @@ function onSelectWeapon(name: string) {
     >
       <BaseTdInput
         :value="weapon.dam"
+        :readonly="props.readonly"
         @input="(val) => updatePCWeapon({ dam: val })"
       />
     </div>
@@ -227,6 +233,7 @@ function onSelectWeapon(name: string) {
     >
       <BaseTdInput
         :value="weapon.range"
+        :readonly="props.readonly"
         @input="(val) => updatePCWeapon({ range: val })"
       />
     </div>
@@ -239,6 +246,7 @@ function onSelectWeapon(name: string) {
       <SoxCheckbox
         :xOnFalse="!!weapon.name"
         :checked="Boolean(weapon.tho)"
+        :disabled="props.readonly"
         @check="(val) => updatePCWeapon({ tho: +val })"
       />
     </div>
@@ -250,6 +258,7 @@ function onSelectWeapon(name: string) {
     >
       <BaseTdInput
         :value="weapon.round"
+        :readonly="props.readonly"
         @input="(val) => updatePCWeapon({ round: val })"
       />
     </div>
@@ -261,6 +270,7 @@ function onSelectWeapon(name: string) {
     >
       <BaseTdInput
         :value="weapon.num"
+        :readonly="props.readonly"
         @input="(val) => updatePCWeapon({ num: val })"
       />
     </div>
@@ -272,6 +282,7 @@ function onSelectWeapon(name: string) {
     >
       <BaseTdInput
         :value="weapon.err"
+        :readonly="props.readonly"
         @input="(val) => updatePCWeapon({ err: val })"
       />
     </div>

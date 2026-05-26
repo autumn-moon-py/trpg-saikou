@@ -152,7 +152,7 @@ function applyInData() {
   pageData && (pageData.importing = true);
   if (data && data.viewData && data.pc && viewData && pc) {
     try {
-      pc.value = data.pc;
+      pc.value = createPC(data.pc);
       Object.keys(data.viewData).forEach((key) => {
         const k = key as keyof COCCardViewData;
         viewData[k] = data.viewData[k];
@@ -218,7 +218,7 @@ function actLoadHistory() {
     if (!pageData || !pc || !viewData) return;
 
     pageData.importing = true;
-    pc.value = savedPC;
+    pc.value = createPC(savedPC);
 
     if (savedViewData) {
       Object.keys(savedViewData).forEach((key) => {

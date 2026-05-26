@@ -76,11 +76,6 @@ watch(
         :char="4"
       />
       <WritableRow
-        label="护甲"
-        v-model="pc.battleAttributes.armor"
-        :char="4"
-      />
-      <WritableRow
         label="移动力"
         v-model="pc.battleAttributes.mov"
         :char="4"

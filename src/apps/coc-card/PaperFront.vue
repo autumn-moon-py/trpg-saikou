@@ -5,8 +5,8 @@ import PaperLayout from './layouts/PaperLayout.vue';
 import InvestigatorSection from './sections/InvestigatorSection.vue';
 import AttributesSection from './sections/AttributesSection.vue';
 // import LuckSection from './sections/LuckSection.vue';
+import DeriveQuickSection from './sections/DeriveQuickSection.vue';
 import AvatarSection from './sections/AvatarSection.vue';
-import DeriveSections from './sections/DeriveSections.vue';
 import HintSection from './sections/HintSection.vue';
 import SkillSection from './sections/SkillSection.vue';
 import WeaponSection from './sections/WeaponSection.vue';
@@ -20,13 +20,12 @@ defineProps<Props>();
 
 <template>
   <PaperLayout :setRef="setRef">
-    <div class="section-row">
+    <div class="section-row section-row-evenly">
       <InvestigatorSection />
       <AttributesSection />
-      <!-- <LuckSection class="col-0" /> -->
+      <DeriveQuickSection />
       <AvatarSection />
     </div>
-    <DeriveSections />
     <HintSection />
     <SkillSection />
     <div class="section-row">
@@ -42,5 +41,9 @@ defineProps<Props>();
   gap: 0.8em;
   align-items: stretch;
   flex-wrap: wrap;
+}
+.section-row-evenly {
+  justify-content: space-between;
+  gap: 0.3em;
 }
 </style>
