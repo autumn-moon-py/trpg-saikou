@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, reactive, defineExpose } from 'vue';
+import { computed, nextTick, ref, reactive, defineExpose, inject } from 'vue';
 import { ElMessage } from 'element-plus';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
@@ -111,14 +111,21 @@ function actToggleMorePanel() {
 
 function actResetCard() {
   if (!pc || !viewData) return;
-  // reset pc
-  pc.value = reactive(createPC());
-  // reset viewData
-  resetViewData(viewData);
-  // remove auto saved
-  nextTick(() => {
-    ls.removeItem('autoSaved');
-  });
+
+  const cardManager = inject<{
+    resetCurrentCard: () => void
+  } | null>('cardManager', null);
+
+  if (cardManager) {
+    cardManager.resetCurrentCard();
+  } else {
+    // 回退：旧式重置
+    pc.value = reactive(createPC());
+    resetViewData(viewData);
+    nextTick(() => {
+      ls.removeItem('autoSaved');
+    });
+  }
 
   ElMessage.info('已重置人物卡');
   morePanelVisible.value = false;

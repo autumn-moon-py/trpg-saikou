@@ -12,6 +12,8 @@ import type { PageData } from './types/pageData';
 import useDerives from './hooks/useDerives';
 import useSuggestion from './hooks/useSuggestion';
 import useAppLs from './hooks/useAppLs';
+import useCardManager from './hooks/useCardManager';
+import CardManager from './components/CardManager.vue';
 
 import ControlSection from './sections/ControlSection.vue';
 import PaperFront from './PaperFront.vue';
@@ -44,14 +46,16 @@ const suggestion = useSuggestion(pcRef, {
   pageData,
 });
 
-// TODO 自动导入
-// import useAutoSave from './hooks/useAutoSave';
-// useAutoSave(pcRef, {viewData,pageData});
+// 多角色卡管理 + 自动保存
+const cardManager = useCardManager(pcRef, viewData, pageData);
+cardManager.init();
+cardManager.startAutoSave();
 
 provide('pc', pcRef);
 provide('viewData', viewData);
 provide('pageData', pageData);
 provide('suggestion', suggestion);
+provide('cardManager', cardManager);
 
 const paperEls = reactive<{ front?: HTMLElement; back?: HTMLElement }>({});
 
@@ -143,6 +147,16 @@ async function actReadClipboard() {
       </div>
     </div>
     <div class="sticky-footer web-only">
+      <CardManager
+        :metaList="cardManager.metaList.value"
+        :activeCardId="cardManager.activeCardId.value"
+        :currentMeta="cardManager.currentMeta.value"
+        @create-card="cardManager.createCard"
+        @switch-card="cardManager.switchCard"
+        @delete-card="cardManager.deleteCard"
+        @duplicate-card="cardManager.duplicateCard"
+        @rename-card="(id, name) => cardManager.renameCard(id, name)"
+      />
       <ControlSection
         ref="controlSectionRef"
         :paperEls="paperEls"
