@@ -32,13 +32,13 @@ withDefaults(defineProps<Props>(), {});
   /* --base-size: 3.2mm; */
   font-size: var(--base-size, 15px); // 3.2mm * n
   width: 65.625em; // 210mm / 3.2mm
-  height: 92.8125em; // 297mm / 3.2mm
+  min-height: 92.8125em; // 297mm / 3.2mm
 }
 .paper-content {
   box-sizing: border-box;
   padding: 1.5em 1.8em;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   color: var(--color-text);
   background-color: var(--color-white);
   display: flex;

@@ -49,6 +49,7 @@ export interface COCPlayerCharacter {
   };
   // 经历过的模组
   experiencedModules: string;
+  experiencedModules2: string;
   // 人物关系
   friends: string;
 }

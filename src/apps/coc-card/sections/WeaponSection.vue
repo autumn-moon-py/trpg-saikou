@@ -20,19 +20,18 @@ const localWeapons = computed<(Weapon | undefined)[]>(() => {
 <template>
   <PaperSection
     title="武器"
-    subTitle="Weapons"
   >
     <div class="weapon-section-body">
       <div class="weapon-section-row">
         <div class="wp-th th-deep">武器名称</div>
-        <div class="wp-th th-light">使用技能</div>
-        <div class="wp-th th-deep">%</div>
+        <div class="wp-th th-light">技能</div>
+        <div class="wp-th th-deep col-mobile-hide">%</div>
         <div class="wp-th th-light">伤害</div>
-        <div class="wp-th th-deep">射程</div>
-        <div class="wp-th th-light">贯穿</div>
+        <div class="wp-th th-deep col-mobile-hide">射程</div>
+        <div class="wp-th th-light col-mobile-hide">贯穿</div>
         <div class="wp-th th-deep">次数</div>
-        <div class="wp-th th-light">装弹量</div>
-        <div class="wp-th th-deep">故障</div>
+        <div class="wp-th th-light col-mobile-hide">装弹量</div>
+        <div class="wp-th th-deep col-mobile-hide">故障</div>
       </div>
       <WeaponSectionRow
         class="weapon-section-row"
@@ -75,11 +74,11 @@ const localWeapons = computed<(Weapon | undefined)[]>(() => {
 <style lang="scss">
 @media screen and (max-width: 1024px) {
   .papers-editing {
-    .weapon-section-body {
-      overflow: auto;
-    }
     .weapon-section-row {
-      min-width: 68em; // 210mm / 3.2mm - 1.8em * 2 + 余量
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+    .col-mobile-hide {
+      display: none;
     }
   }
 }

@@ -133,7 +133,7 @@ watch(
     }"
   >
     <template v-slot:header>
-      <div class="header">
+      <div class="header skill-section-header">
         <div class="header-left points-container">
           <div class="point-container">
             <WritableRow
@@ -169,10 +169,9 @@ watch(
         </div>
         <h1 class="heading">
           <span class="title">技能表</span>
-          <span class="subtitle">Skill</span>
         </h1>
         <div class="header-right points-container">
-          <div>技能成功率上限</div>
+          <div>初始技能上限</div>
           <div class="point-container">
             <WritableRow
               class="point-writer"
@@ -185,7 +184,7 @@ watch(
           <div class="point-container">
             <WritableRow
               class="point-writer"
-              label="其它"
+              label="兴趣"
               :char="2"
               :modelValue="`${viewData?.skillLimits.interest || ''}`"
               @update:modelValue="(v) => updateLimit('interest', v)"
@@ -260,6 +259,7 @@ watch(
   }
   & :deep(.input) {
     padding: 0.1em 0.2em;
+    text-align: center;
   }
 }
 .point-rest {
@@ -297,23 +297,23 @@ watch(
 <style lang="scss">
 @media screen and (max-width: 1024px) {
   .papers-editing {
-    .header {
+    .skill-section-header {
       flex-direction: column;
       gap: 0.4em;
+
+      .heading {
+        order: -1;
+      }
     }
     .skill-section-body {
       flex-direction: column;
       flex-wrap: wrap;
-      overflow: auto;
 
       .divider {
         border: none;
         border-top: 1px solid var(--color-black);
         align-self: stretch;
       }
-    }
-    .skill-table {
-      min-width: 31em; // 210mm / 3.2mm - 1.8em * 2
     }
   }
 }

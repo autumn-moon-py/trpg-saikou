@@ -174,7 +174,6 @@ export const jobGroups: JobGroup[] = [
             [ '暴走族', 'baozouzu' ],
             [ '风水师', 'fengshuishi' ],
             [ '家传降妖人', 'jiachuanjiangyaoren' ],
-            [ '日本教授', 'ribenjiaoshou' ],
             [ '言灵师', 'yanlingshi' ],
             [ '宫司', 'gongsi' ],
             [ '炼丹师', 'liandanshi' ],

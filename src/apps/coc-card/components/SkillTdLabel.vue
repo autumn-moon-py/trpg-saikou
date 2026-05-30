@@ -172,15 +172,16 @@ function changeProSkill(value: boolean) {
 }
 .child-skill-input-container {
   position: relative;
-  flex: 1 1 4em;
-  width: 4em;
+  flex: 1 1 2em;
+  width: 2em;
   display: flex;
 }
 .child-skill-input {
-  flex: 1 1 4em;
-  width: 4em;
+  flex: 1 1 2em;
+  width: 2em;
   font-size: 0.96em;
   line-height: 1.2em;
+  text-align: center;
   background-color: transparent;
   border-bottom: 1px solid var(--color-line);
 
@@ -223,7 +224,7 @@ function changeProSkill(value: boolean) {
 .skill-td-label-comments {
   display: inline-block;
   line-height: 1;
-  margin-left: 0.1em;
+  margin-left: 0.4em;
   opacity: 0.72;
   width: 0;
   transform: scale(0.75);

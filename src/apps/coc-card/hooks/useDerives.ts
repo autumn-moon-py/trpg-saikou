@@ -15,8 +15,9 @@ export default function useDerives ( pc: Ref<COCPlayerCharacter> )
             if ( con && siz ) HPMax = `${ Math.floor( ( con + siz ) / 10 ) }`
             if ( pow ) MPMax = `${ Math.floor( pow / 5 ) }`
 
-            // TODO 缓存读取当前理智
             const existingSanityNow = pc.value.deriveAttributes?.sanity?.now
+            const existingHpNow = pc.value.deriveAttributes?.hp?.now
+            const existingMpNow = pc.value.deriveAttributes?.mp?.now
 
             pc.value.deriveAttributes = {
                 sanity: {
@@ -25,9 +26,11 @@ export default function useDerives ( pc: Ref<COCPlayerCharacter> )
                 },
                 hp: {
                     start: HPMax,
+                    now: existingHpNow ?? HPMax,
                 },
                 mp: {
                     start: MPMax,
+                    now: existingMpNow ?? MPMax,
                 },
             }
         },

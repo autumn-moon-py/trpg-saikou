@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, provide, ref, watch } from 'vue';
+import { reactive, provide, ref, watch, computed } from 'vue';
 import qs from 'qs';
 
 import { createPC } from './models/character';
@@ -17,7 +17,7 @@ import ControlSection from './sections/ControlSection.vue';
 import PaperFront from './PaperFront.vue';
 import PaperBack from './PaperBack.vue';
 import { ElMessage } from 'element-plus';
-import FileList from './components/FileList.vue';
+import { DocumentCopy } from '@element-plus/icons-vue';
 
 const qsObject = qs.parse(location.search.slice(1));
 const pcRef = ref<COCPlayerCharacter>(createPC());
@@ -90,19 +90,25 @@ const processText = (text: string | ArrayBuffer | null) => {
   }
 };
 
-const isFull = window.innerWidth > window.innerHeight;
+import { isDesktop } from '@/utils/platform';
+const isFull = computed(() => isDesktop());
+
+async function actReadClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    processText(text);
+  } catch (err) {
+    ElMessage.error('无法读取剪贴板');
+  }
+}
 </script>
 
 <template>
-  <div>
-    <FileList
-      v-if="isFull"
-      :processText="processText"
-    />
-  </div>
+
   <main class="page theme-dark">
     <div
       class="paper-container theme-light"
+      :class="{ 'is-mobile': !pageData.printing }"
       @drop="handleDrop"
       @dragover.prevent="handleDragOver"
     >
@@ -140,9 +146,20 @@ const isFull = window.innerWidth > window.innerHeight;
       <ControlSection
         ref="controlSectionRef"
         :paperEls="paperEls"
+        :isFull="isFull"
         @switch-paper="() => (pageData.paperInFront = !pageData.paperInFront)"
       />
     </div>
+    <button
+      v-if="isFull"
+      class="fab-clipboard web-only"
+      title="读取剪贴板"
+      @click="actReadClipboard"
+    >
+      <el-icon :size="20">
+        <DocumentCopy />
+      </el-icon>
+    </button>
   </main>
 </template>
 
@@ -192,10 +209,42 @@ const isFull = window.innerWidth > window.innerHeight;
   background-color: rgba(22, 22, 22, 0.92);
 }
 
+.fab-clipboard {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-control-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, background-color 0.15s;
+  z-index: 10;
+
+  &:hover {
+    transform: scale(1.06);
+    background-color: var(--color-control-bg-hover);
+  }
+  &:active {
+    transform: scale(0.94);
+    background-color: var(--color-control-bg-active);
+  }
+}
+
 @media screen and (max-width: 1024px) {
   .papers-animation-container.papers-editing {
     width: auto;
     height: auto;
+  }
+  .paper-container.is-mobile {
+    overflow: visible;
+    perspective: none;
   }
 }
 

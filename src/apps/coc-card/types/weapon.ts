@@ -39,4 +39,6 @@ export interface WeaponGroups {
   jq: string[];
   // 其它
   qt: string[];
+  // 日本合法
+  rbhf: string[];
 }

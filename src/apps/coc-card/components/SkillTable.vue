@@ -61,7 +61,8 @@ function getTableData(data: SkillGroups, suggestion?: Suggestion) {
         const points = skillPoint?.[1] || {};
         // 信用评级范围
         const [w0, w1] = suggestion?.wealth ?? [-1, -1];
-        const comments = skillKey === '信用评级' && w0 >= 0 && w1 >= 0 ? `(${w0}~${w1})` : '';
+        const hasJob = !!(pc && pc.value.job);
+        const comments = skillKey === '信誉' && hasJob && w0 >= 0 && w1 >= 0 ? `(${w0}~${w1})` : '';
         const total = getTotal(points, init);
         let rowData: TableRowData = {
           key: skill.name,
@@ -215,13 +216,13 @@ function getTotal(points: SkillPoint, init: number) {
             技能
           </div>
         </th>
-        <th class="skill-th th-light">基础%</th>
-        <th class="skill-th th-deep">职业%</th>
-        <th class="skill-th th-light">兴趣%</th>
+        <th class="skill-th th-light" :class="{ 'col-base': !pageData?.printing }">基础</th>
+        <th class="skill-th th-deep">职业</th>
+        <th class="skill-th th-light">兴趣</th>
         <th class="skill-th th-deep">
-          <div class="th-grow">成长%</div>
+          <div class="th-grow">成长</div>
         </th>
-        <th class="skill-th th-light">成功率%</th>
+        <th class="skill-th th-light">基准</th>
       </tr>
     </thead>
     <tbody>
@@ -258,6 +259,7 @@ function getTotal(points: SkillPoint, init: number) {
         <td
           class="skill-td"
           :class="{
+            'col-base': !pageData?.printing,
             'td-color-0': index % 2,
             'td-color-1': (index + 1) % 2,
           }"
@@ -330,6 +332,10 @@ function getTotal(points: SkillPoint, init: number) {
           }"
         >
           <span
+            v-if="!row.showTotal && !pageData?.printing"
+            class="mobile-init-hint"
+          >{{ row.points.b ?? (row.init ?? row.initPlaceholder) }}</span>
+          <span
             v-if="pageData?.showTotalSeparation"
             class="total-separation"
           >
@@ -341,7 +347,7 @@ function getTotal(points: SkillPoint, init: number) {
               {{ sep }}
             </span>
           </span>
-          <span v-else-if="row.showTotal">{{ row.total }}</span>
+          <span v-else-if="row.showTotal" class="total-value">{{ row.total }}</span>
         </td>
       </tr>
     </tbody>
@@ -429,12 +435,11 @@ function getTotal(points: SkillPoint, init: number) {
 }
 .td-group-name-visible {
   border: 1pt solid var(--color-black);
-  border-left: none;
   border-bottom: none;
 }
 .td-skill-name {
   text-align: left;
-  width: 7.5em;
+  width: 6em;
 }
 .td-skill-name-special :deep(.skill-td-checkbox-label) {
   visibility: hidden;
@@ -463,6 +468,25 @@ function getTotal(points: SkillPoint, init: number) {
 
   & + & {
     border-left: 1pt solid var(--sep-color);
+  }
+}
+
+</style>
+
+<style lang="scss">
+.mobile-init-hint {
+  display: none;
+}
+
+@media screen and (max-width: 1024px) {
+  .skill-table {
+    .col-base {
+      display: none;
+    }
+  }
+  .mobile-init-hint {
+    display: inline;
+    color: #999;
   }
 }
 </style>

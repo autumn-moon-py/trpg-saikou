@@ -58,15 +58,13 @@ watch(
 <template>
   <PaperSection
     title="战斗"
-    subTitle="Combat"
   >
     <div
       class="battle-section-body"
       v-if="pc"
     >
       <WritableRow
-        label="伤害加值"
-        hint="DB"
+        label="DB"
         v-model="pc.battleAttributes.db"
         :char="4"
       />

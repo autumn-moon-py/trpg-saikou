@@ -26,10 +26,6 @@ defineEmits<Emits>();
     @change="$emit('change', ($event.target as HTMLInputElement).value)"
   >
     <option
-      value=""
-      disabled
-    ></option>
-    <option
       v-for="option in options"
       :key="option.value"
       :value="option.value"
@@ -49,6 +45,13 @@ defineEmits<Emits>();
   border: none;
   outline: none;
   cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    opacity: 1;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
 
   &:hover,
   &:focus {

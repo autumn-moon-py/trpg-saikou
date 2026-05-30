@@ -1,1 +1,28 @@
-"use strict";const{app:i,BrowserWindow:t}=require("electron"),n=require("node:path"),o=()=>{const e=new t({width:1080,height:720,frame:!1,webPreferences:{preload:n.join(__dirname,"../preload/index.js")}});e.loadFile(n.join(__dirname,"../dist/index.html")),e.once("ready-to-show",()=>{e.maximize(),e.show()})};i.whenReady().then(()=>{o(),i.on("activate",()=>{t.getAllWindows().length===0&&o()})});i.on("window-all-closed",()=>{process.platform!=="darwin"&&i.quit()});
+"use strict";
+const { app, BrowserWindow } = require("electron");
+const path = require("node:path");
+const createWindow = () => {
+  const mainWindow = new BrowserWindow({
+    width: 1080,
+    height: 720,
+    // 禁用工具栏
+    frame: false,
+    webPreferences: {
+      preload: path.join(__dirname, "../preload/index.js")
+    }
+  });
+  mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.maximize();
+    mainWindow.show();
+  });
+};
+app.whenReady().then(() => {
+  createWindow();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
+});

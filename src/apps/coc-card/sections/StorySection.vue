@@ -26,17 +26,22 @@ const leftConfigs: AreaConfig[] = reactive([
   { label: '重要之人', fieldName: 'IPerson' },
   { label: '意义非凡之地', fieldName: 'IPlace' },
   { label: '宝贵之物', fieldName: 'IItem' },
-  { label: '特质', fieldName: 'trait' },
   { label: '伤口与疤痕', fieldName: 'scar' },
   { label: '精神症状', fieldName: 'mad' },
+  { label: '特质', fieldName: 'trait' },
 ]);
 const rightConfigs: AreaConfig[] = reactive([]);
+import { isMobile as detectMobile } from '@/utils/platform';
+
+const isMobile = computed(() => !pageData?.printing && detectMobile());
+
 const restConfig = reactive<Partial<AreaConfig>>({ fieldName: 'desc', size: 'base' });
 const restRows = computed(() => {
   const configLength = leftConfigs.length - rightConfigs.length;
   const basic = configLength * ~~(restConfig.size === 'base' ? BASE_ROWS : SMALL_ROWS);
   const additional = restConfig.size === 'base' ? 0 : ~~(configLength / 6);
-  return basic + additional;
+  const total = basic + additional;
+  return isMobile.value ? Math.ceil(total / 2) : total;
 });
 
 const showingAlert = ref<MessageHandler>();
@@ -71,7 +76,6 @@ watch(
   <PaperSection
     v-if="pc"
     title="背景故事"
-    subTitle="Story"
   >
     <div class="story-section-body">
       <div class="story-section-column col-2">

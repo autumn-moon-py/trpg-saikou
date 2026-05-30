@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
+import { ElMessage } from 'element-plus';
 
+// components
 import PaperSection from '../components/PaperSection.vue';
 import WritableRow from '../components/WritableRow.vue';
+import AttrSectionButton from '../components/AttrSectionButton.vue';
 
+// models
+import { generateRandomAttributes, getAttributesSum } from '../models/attribute';
 import type { COCAttributesKey } from '../types/character';
 
-import { usePC } from '../hooks/useProviders';
+import { usePC, usePageData } from '../hooks/useProviders';
 
 const pc = usePC();
+const pageData = usePageData();
 
 interface RenderListItem {
   key: COCAttributesKey;
@@ -19,13 +25,11 @@ const leftList: RenderListItem[] = [
   { key: 'str', label: '力量', hint: 'STR' },
   { key: 'con', label: '体质', hint: 'CON' },
   { key: 'dex', label: '敏捷', hint: 'DEX' },
-];
-const midList: RenderListItem[] = [
   { key: 'app', label: '外貌', hint: 'APP' },
   { key: 'pow', label: '意志', hint: 'POW' },
-  { key: 'siz', label: '体型', hint: 'SIZ' },
 ];
 const rightList: RenderListItem[] = [
+  { key: 'siz', label: '体型', hint: 'SIZ' },
   { key: 'edu', label: '教育', hint: '知识 EDU' },
   { key: 'int', label: '智力', hint: '灵感 INT' },
   { key: 'luc', label: '幸运', hint: 'LUK' },
@@ -44,47 +48,77 @@ function updateAttr(key: COCAttributesKey, value: string) {
   if (!pc) return;
   pc.value.attributes[key] = value ? +value : undefined;
 }
+
+import { isMobile as detectMobile } from '@/utils/platform';
+
+const isMobile = computed(() => !pageData?.printing && detectMobile());
+
+const allList = [...leftList, ...rightList];
+
+// 一发入魂
+const generateTimes = ref(0);
+function actRoll() {
+  if (!pc) return;
+
+  // 多次 roll 点取最高，增加 roll 点体验
+  const attrs = Array.from({
+    length: (generateTimes.value % 3) + 1,
+  })
+    .map(() => generateRandomAttributes())
+    .sort((a, b) => getAttributesSum(b) - getAttributesSum(a))[0];
+  pc.value.attributes = attrs;
+  ElMessage.success('已为您生成一组数据，看看符不符合心意吧！');
+  generateTimes.value++;
+}
 </script>
 
 <template>
   <PaperSection
     title="属性"
-    subTitle="Characteristics"
     v-if="pc"
   >
     <div class="info-section">
-      <div class="attributes-group">
-        <WritableRow
-          v-for="item in leftList"
-          :key="item.key"
-          :label="item.label"
-          :modelValue="`${pc?.attributes[item.key] ?? ''}`"
-          @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
-        />
-      </div>
-      <div class="divider"></div>
-      <div class="attributes-group">
-        <WritableRow
-          v-for="item in midList"
-          :key="item.key"
-          :label="item.label"
-          :modelValue="`${pc?.attributes[item.key] ?? ''}`"
-          @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
-        />
-      </div>
-      <div class="divider"></div>
-      <div class="attributes-group">
-        <WritableRow
-          v-for="item in rightList"
-          :key="item.key"
-          :label="item.label"
-          :modelValue="`${pc?.attributes[item.key] ?? ''}`"
-          @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
-        />
-        <template v-if="sum">
-          <div class="ponits-sum">总点数 {{ sum }}</div>
-        </template>
-      </div>
+      <template v-if="isMobile">
+        <div class="attributes-grid">
+          <WritableRow
+            v-for="item in allList"
+            :key="item.key"
+            :label="item.label"
+            :modelValue="`${pc?.attributes[item.key] ?? ''}`"
+            @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
+          />
+        </div>
+        <div
+          v-if="sum"
+          class="ponits-sum"
+        >总点数 {{ sum }}</div>
+      </template>
+      <template v-else>
+        <div class="attributes-group">
+          <WritableRow
+            v-for="item in leftList"
+            :key="item.key"
+            :label="item.label"
+            :modelValue="`${pc?.attributes[item.key] ?? ''}`"
+            @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
+          />
+        </div>
+        <div class="divider"></div>
+        <div class="attributes-group">
+          <WritableRow
+            v-for="item in rightList"
+            :key="item.key"
+            :label="item.label"
+            :modelValue="`${pc?.attributes[item.key] ?? ''}`"
+            @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
+          />
+          <div class="attributes-actions">
+            <template v-if="sum">
+              <div class="ponits-sum">总点数 {{ sum }}</div>
+            </template>
+          </div>
+        </div>
+      </template>
     </div>
   </PaperSection>
 </template>
@@ -108,6 +142,35 @@ function updateAttr(key: COCAttributesKey, value: string) {
   & :deep(.label) {
     flex: 0 1 2.8em;
   }
+  & :deep(.input) {
+    width: 3em !important;
+  }
+}
+.dice-hint {
+  align-self: flex-start;
+  font-size: 0.8em;
+  margin: 0 0 -0.3em 0.6em;
+}
+
+.attributes-actions {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.4em;
+  width: 0;
+  white-space: nowrap;
+
+  --color-button-border: #b2b2b2;
+  --color-button-border-hover: #9a9a9a;
+  --color-button-bg: #fff;
+  --color-button-bg-hover: #fafafa;
+  --color-button-bg-active: #f5f5f5;
+  --color-button-text: #4b4e53;
+  --color-button-text-hover: #2e2e2e;
 }
 .ponits-sum {
   text-align: center;
@@ -115,5 +178,41 @@ function updateAttr(key: COCAttributesKey, value: string) {
   line-height: 1;
   transform: scale(0.88);
   transform-origin: center bottom;
+}
+
+.attributes-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 0.3em 0.4em;
+  padding: 0.4em 0.6em;
+
+  & :deep(.input) {
+    width: 3.6em !important;
+    text-align: center;
+  }
+}
+
+/* when print */
+@mixin printing-styles {
+  .web-only {
+    display: none;
+  }
+}
+.printing-image {
+  @include printing-styles;
+}
+@media print {
+  @include printing-styles;
+}
+</style>
+
+<style lang="scss">
+@media screen and (max-width: 1024px) {
+  .papers-editing {
+    .attributes-group .input {
+      width: 3.6em !important;
+    }
+  }
 }
 </style>

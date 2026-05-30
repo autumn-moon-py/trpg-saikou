@@ -5,10 +5,12 @@ import { CloseBold, Select } from '@element-plus/icons-vue';
 interface Props {
   checked?: boolean;
   xOnFalse?: boolean;
+  disabled?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   checked: false,
   xOnFalse: false,
+  disabled: false,
 });
 
 interface Emits {
@@ -27,6 +29,7 @@ watch(
 );
 
 function onChange($event: Event) {
+  if (props.disabled) return;
   const value = ($event.target as HTMLInputElement).checked;
   localChecked.value = value;
   emit('check', value, $event);
@@ -35,7 +38,7 @@ function onChange($event: Event) {
 </script>
 
 <template>
-  <label class="sox-checkbox">
+  <label class="sox-checkbox" :class="{ disabled: props.disabled }">
     <el-icon size="0.9em">
       <Select v-if="localChecked" />
       <CloseBold v-if="!localChecked && xOnFalse" />
@@ -73,6 +76,11 @@ function onChange($event: Event) {
   &:active {
     background-color: var(--vt-c-white-mute);
   }
+}
+.sox-checkbox.disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
 }
 .sox-checkbox-input {
   visibility: hidden;

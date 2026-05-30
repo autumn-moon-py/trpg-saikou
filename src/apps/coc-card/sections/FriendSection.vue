@@ -1,22 +1,27 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import PaperSection from '../components/PaperSection.vue';
 import WritableArea from '../components/WritableArea.vue';
 
-import { usePC } from '../hooks/useProviders';
+import { usePC, usePageData } from '../hooks/useProviders';
+import { isMobile as detectMobile } from '@/utils/platform';
 
 const pc = usePC();
+const pageData = usePageData();
+
+const isMobile = computed(() => !pageData?.printing && detectMobile());
+const rows = computed(() => isMobile.value ? 6 : 11);
 </script>
 
 <template>
   <PaperSection
     v-if="pc"
     title="人物关系"
-    subTitle="Relationships"
   >
     <div class="section-body">
       <WritableArea
         label=""
-        :rows="11"
+        :rows="rows"
         v-model="pc.friends"
       />
     </div>
