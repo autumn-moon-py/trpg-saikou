@@ -1,19 +1,17 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { Plus, Delete, CopyDocument } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
 
 import { usePageData } from '../hooks/useProviders';
-import useZhTimeAgo from '@/hooks/useZhTimeAgo';
 
 import type { CardMeta } from '../hooks/useAppLs';
 
 interface Props {
   metaList: CardMeta[];
   activeCardId: string;
-  currentMeta: CardMeta | undefined;
 }
-const props = defineProps<Props>();
+defineProps<Props>();
 
 interface Emits {
   (event: 'create-card'): void;
@@ -29,13 +27,6 @@ const pageData = usePageData();
 // 正在编辑存档名的卡片 ID
 const editingId = ref<string | null>(null);
 const editingName = ref('');
-
-// 当前卡片的最后修改时间
-const lastModifiedText = computed(() => {
-  if (!props.currentMeta) return '';
-  const { timeAgo } = useZhTimeAgo(props.currentMeta.lastModified);
-  return timeAgo.value;
-});
 
 async function confirmDelete(id: string) {
   try {
@@ -69,11 +60,6 @@ function cancelRename() {
 
 <template>
   <div class="card-manager" :class="{ 'printing-image': pageData?.printing }">
-    <!-- 电脑端：时间信息 -->
-    <div v-if="lastModifiedText" class="card-time card-time-desktop">
-      {{ lastModifiedText }}编辑
-    </div>
-
     <div class="card-tabs">
       <!-- 新建按钮 —— 居左 -->
       <div class="card-tab card-tab-new" @click="emit('create-card')">
@@ -116,11 +102,6 @@ function cancelRename() {
         </span>
       </div>
     </div>
-
-    <!-- 移动端：时间信息在标签下方独立一行 -->
-    <div v-if="lastModifiedText" class="card-time card-time-mobile">
-      {{ lastModifiedText }}编辑
-    </div>
   </div>
 </template>
 
@@ -132,17 +113,6 @@ function cancelRename() {
   padding: 4px 12px;
   border-bottom: 1px solid var(--color-border);
   gap: 12px;
-}
-
-/* ====== 时间信息 ====== */
-.card-time-desktop { display: flex; }
-.card-time-mobile  { display: none; }
-.card-time {
-  font-size: 12px;
-  color: var(--color-text);
-  opacity: 0.6;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 
 /* ====== 标签容器 ====== */
@@ -223,15 +193,10 @@ function cancelRename() {
 /* ====== 移动端 (≤1024px) ====== */
 @media screen and (max-width: 1024px) {
   .card-manager {
-    flex-direction: column;
-    align-items: stretch;
     padding: 2px 8px;
-    gap: 4px;
   }
-  .card-time-desktop { display: none; }
-  .card-time-mobile { display: flex; font-size: 11px; padding-left: 4px; }
 
-  .card-tabs { gap: 6px; padding-bottom: 2px; }
+  .card-tabs { gap: 6px; }
 
   .card-tab {
     padding: 6px 12px;
