@@ -75,6 +75,12 @@ function cancelRename() {
     </div>
 
     <div class="card-tabs">
+      <!-- 新建按钮 —— 居左 -->
+      <div class="card-tab card-tab-new" @click="emit('create-card')">
+        <el-icon :size="14"><Plus /></el-icon>
+        <span class="card-tab-new-text">新建</span>
+      </div>
+
       <div
         v-for="meta in metaList"
         :key="meta.id"
@@ -108,12 +114,6 @@ function cancelRename() {
         >
           <el-icon :size="12"><Delete /></el-icon>
         </span>
-      </div>
-
-      <!-- 新建按钮 -->
-      <div class="card-tab card-tab-new" @click="emit('create-card')">
-        <el-icon :size="14"><Plus /></el-icon>
-        <span class="card-tab-new-text">新建</span>
       </div>
     </div>
 
