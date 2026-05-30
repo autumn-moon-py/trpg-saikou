@@ -55,7 +55,6 @@ const pageData = usePageData();
 interface CardManagerAPI {
   metaList: ComputedRef<{ id: string; name: string; saveName: string; lastModified: number; createdAt: number }[]>;
   activeCardId: ComputedRef<string>;
-  currentMeta: ComputedRef<{ id: string; name: string; saveName: string; lastModified: number; createdAt: number } | undefined>;
   createCard: () => void;
   switchCard: (id: string) => void;
   deleteCard: (id: string) => void;
@@ -335,7 +334,6 @@ defineExpose({ inData, applyInData });
       <CardManager
         :metaList="cardManager.metaList.value"
         :activeCardId="cardManager.activeCardId.value"
-        :currentMeta="cardManager.currentMeta.value"
         @create-card="cardManager.createCard"
         @switch-card="cardManager.switchCard"
         @delete-card="cardManager.deleteCard"
