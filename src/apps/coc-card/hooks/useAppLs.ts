@@ -4,12 +4,23 @@ import { LSApp } from '@/types/ls';
 import type { COCPlayerCharacter } from '../types/character';
 import type { COCCardViewData } from '../types/viewData';
 
+export interface CardMeta {
+  id: string;
+  name: string;
+  saveName: string;
+  lastModified: number;
+  createdAt: number;
+}
+
 interface Store {
   showTotalSeparation?: boolean;
+  activeCardId?: string;
+  cardMetaList?: CardMeta[];
+  // 旧格式——仅用于迁移
   autoSaved?: {
     pc: COCPlayerCharacter;
     viewData: COCCardViewData;
-    lastModified: number; // number of date
+    lastModified: number;
   };
 }
 
