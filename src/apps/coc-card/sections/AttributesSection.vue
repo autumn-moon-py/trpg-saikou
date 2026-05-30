@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { ElMessage } from 'element-plus';
+import { computed } from 'vue';
 
 // components
 import PaperSection from '../components/PaperSection.vue';
 import WritableRow from '../components/WritableRow.vue';
-import AttrSectionButton from '../components/AttrSectionButton.vue';
 
-// models
-import { generateRandomAttributes, getAttributesSum } from '../models/attribute';
 import type { COCAttributesKey } from '../types/character';
-
 import { usePC, usePageData } from '../hooks/useProviders';
 
 const pc = usePC();
@@ -55,21 +50,7 @@ const isMobile = computed(() => !pageData?.printing && detectMobile());
 
 const allList = [...leftList, ...rightList];
 
-// 一发入魂
-const generateTimes = ref(0);
-function actRoll() {
-  if (!pc) return;
 
-  // 多次 roll 点取最高，增加 roll 点体验
-  const attrs = Array.from({
-    length: (generateTimes.value % 3) + 1,
-  })
-    .map(() => generateRandomAttributes())
-    .sort((a, b) => getAttributesSum(b) - getAttributesSum(a))[0];
-  pc.value.attributes = attrs;
-  ElMessage.success('已为您生成一组数据，看看符不符合心意吧！');
-  generateTimes.value++;
-}
 </script>
 
 <template>

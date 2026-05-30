@@ -10,7 +10,7 @@ import electron from 'vite-plugin-electron'
 //     case 'sox-mini':
 //       return '/';
 //     default:
-//       return NODE_ENV === 'production' ? '/trpg-saikou/' : '/';
+//       return NODE_ENV === 'production' ? '/trpg-autumnmoon/' : '/';
 //   }
 // }
 

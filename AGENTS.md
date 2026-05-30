@@ -7,7 +7,7 @@
 
 ## 1. 项目概述
 
-**项目名称**：trpg-saikou（TRPG 赛高）
+**项目名称**：trpg-autumnmoon（TRPG 秋月）
 **版本**：0.4.0
 **定位**：COC（克苏鲁的呼唤）TRPG 人物卡（角色卡）在线编辑器，支持属性生成、技能分配、武器管理、导出/导入、打印为图片等功能。
 **技术栈**：Vue 3 + TypeScript + Vite 5 + Element Plus + Electron + UniApp

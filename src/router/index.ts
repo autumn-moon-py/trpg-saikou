@@ -33,12 +33,11 @@ router.beforeEach( ( to ) =>
     const { title } = to.meta
 
     // set title
-    const titleSuffix = 'TRPG 赛高 | 侠小然'
-    const docTitle = title ? `${ title } | ${ titleSuffix }` : titleSuffix
+    const docTitle = title || ''
     document.title = docTitle
     document.head
         .querySelector( 'meta[name="application-name"]' )
-        ?.setAttribute( 'content', title || 'TRPG 赛高' )
+        ?.setAttribute( 'content', title || '' )
 
     return true
 } )

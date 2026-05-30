@@ -8,7 +8,7 @@
     />
     <a
       class="issue-link"
-      href="https://github.com/masquevil/trpg-saikou#商业使用"
+      href="https://github.com/masquevil/trpg-autumnmoon#商业使用"
       target="_blank"
     >
       交流 反馈 商业合作：Github

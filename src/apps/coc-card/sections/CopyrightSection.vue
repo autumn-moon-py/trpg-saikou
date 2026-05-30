@@ -8,7 +8,7 @@
         class="link commercial-link"
         href="mailto:masquevil@gmail.com"
       >
-        masquevil@gmail.com (侠小然)
+        masquevil@gmail.com
       </a>
       <a
         class="link commercial-link"
@@ -19,7 +19,7 @@
     </div>
     <div class="copyright">
       <span>©「克苏鲁的呼唤」7版人物卡</span>
-      <span>Copyright 侠小然 {{ new Date().getFullYear() }}</span>
+      <span>Copyright {{ new Date().getFullYear() }}</span>
       <span class="footprint">🐾</span>
     </div>
   </div>
