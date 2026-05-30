@@ -53,6 +53,11 @@ function commitRename() {
   editingId.value = null;
 }
 
+function displayName(meta: CardMeta): string {
+  if (meta.name && meta.name !== '未命名角色卡') return meta.name;
+  return meta.saveName;
+}
+
 function cancelRename() {
   editingId.value = null;
 }
@@ -85,7 +90,7 @@ function cancelRename() {
           @keyup.escape="cancelRename"
           @click.stop
         />
-        <span v-else class="card-tab-name">{{ meta.saveName }}</span>
+        <span v-else class="card-tab-name">{{ displayName(meta) }}</span>
 
         <!-- 复制按钮 -->
         <span class="card-tab-btn" @click.stop="emit('duplicate-card', meta.id)" title="复制">
