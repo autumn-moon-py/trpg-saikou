@@ -43,11 +43,6 @@ export default function useCardManager(
     () => ls.getItem('activeCardId') ?? '',
   );
 
-  // 按创建时间升序（最早创建的在前）
-  const sortedMetaList = computed<CardMeta[]>(() =>
-    [...cardMetaList.value].sort((a, b) => a.createdAt - b.createdAt),
-  );
-
   // 当前卡片的元数据
   const currentMeta = computed<CardMeta | undefined>(() =>
     cardMetaList.value.find(m => m.id === activeCardId.value),
@@ -90,7 +85,7 @@ export default function useCardManager(
     const meta: CardMeta = {
       id,
       name: '未命名角色卡',
-      saveName: saveName || `存档 ${sortedMetaList.value.length + 1}`,
+      saveName: saveName || `存档 ${cardMetaList.value.length + 1}`,
       lastModified: Date.now(),
       createdAt: Date.now(),
     };
@@ -269,7 +264,7 @@ export default function useCardManager(
   }
 
   return {
-    metaList: sortedMetaList,
+    metaList: cardMetaList,
     activeCardId,
     currentMeta,
     createCard,
