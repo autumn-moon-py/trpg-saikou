@@ -33,7 +33,7 @@ function onCopyButtonClick() {
 
 <template>
   <ControlButton
-    label="骰娘相关"
+    label="骰娘指令"
     :icon="Dessert"
     @click="onButtonClick"
   />

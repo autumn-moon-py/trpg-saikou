@@ -62,6 +62,7 @@ export function createPC(
       desc: '',
     },
     experiencedModules: '',
+    experiencedModules2: '',
     friends: '',
     ...override,
     assets,

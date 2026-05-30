@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, reactive, defineExpose, h,Fragment } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { computed, nextTick, ref, reactive, defineExpose } from 'vue';
+import { ElMessage } from 'element-plus';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
 
@@ -8,30 +8,25 @@ import {
   Reading,
   Download,
   More,
-  Scissor,
   Refresh,
   DocumentCopy,
-  Mug,
 } from '@element-plus/icons-vue';
 
 // components
 import ControlButton from '../components/ControlButton.vue';
 import ControlDialog from '../components/ControlDialog.vue';
 import DownloaderItem from '../components/DownloaderItem.vue';
-import BuyPointsButton from '../components/control-section-parts/buy-points/BuyPointsButton.vue';
 import JobList from '../components/JobList.vue';
 import WeaponList from '../components/WeaponList.vue';
 import DiceMaid from '../components/control-section-parts/dice-maid/DiceMaid.vue';
 
 // models
-import { modifyAttributesByAge } from '../models/attribute';
 import { createPC } from '../models/character';
 import { resetViewData } from '../models/viewData';
 
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
 import useAppLs from '../hooks/useAppLs';
-import useZhTimeAgo from '@/hooks/useZhTimeAgo';
 
 import type { COCCardViewData } from '../types/viewData';
 
@@ -114,16 +109,6 @@ function actToggleMorePanel() {
   morePanelVisible.value = !morePanelVisible.value;
 }
 
-function actAgeGrow() {
-  if (!pc?.value) return;
-  if (!pc.value.age || pc.value.age === '0') {
-    ElMessage.error('请先在人物卡中填写年龄');
-    return;
-  }
-  pc.value.attributes = modifyAttributesByAge(pc.value.attributes, Number(pc.value.age || 0));
-  ElMessage.success('已为您进行年龄修正！');
-}
-
 function actResetCard() {
   if (!pc || !viewData) return;
   // reset pc
@@ -169,99 +154,27 @@ function applyInData() {
   pageData && (pageData.importing = false);
 }
 
-function switchTotalMode() {
-  if (!pageData) return;
-  pageData.showTotalSeparation = !pageData.showTotalSeparation;
-  ElMessage.info(
-    `已切换成功率显示方式为：${
-      pageData.showTotalSeparation ? '全面（普通 | 困难 | 极难）' : '极简'
-    }`,
-  );
-  morePanelVisible.value = false;
-}
-
-async function actReadClipboard() {
-  try {
-    const text = await navigator.clipboard.readText();
-    inData.value = text;
-    applyInData();
-  } catch (err) {
-    ElMessage.error('无法读取剪贴板');
-  }
-}
-
-// TODO 读取历史
-function actLoadHistory() {
-  const autoSaved = ls.getItem('autoSaved');
-  if (!autoSaved) {
-    ElMessage.info('没有找到历史记录');
-    return;
-  }
-
-  const { lastModified, pc: savedPC, viewData: savedViewData } = autoSaved;
-  const { timeAgo } = useZhTimeAgo(lastModified || Date.now());
-
-  let vnode;
-  try {
-    vnode = h(Fragment, null, [
-      '是否加载您',
-      h('b', { style: { fontWeight: 'bold' } }, timeAgo.value),
-      '编辑的人物卡',
-      savedPC?.name ? `：${savedPC.name}` : '',
-    ]);
-  } catch (e) {
-    ElMessage.error('加载历史记录失败');
-    return;
-  }
-
-  ElMessageBox.confirm(vnode, '检测到编辑过的人物卡').then(() => {
-    if (!pageData || !pc || !viewData) return;
-
-    pageData.importing = true;
-    pc.value = createPC(savedPC);
-
-    if (savedViewData) {
-      Object.keys(savedViewData).forEach((key) => {
-        const k = key as keyof COCCardViewData;
-        viewData[k] = savedViewData[k] as any;
-      });
-    }
-
-    nextTick(() => {
-      if (pageData) pageData.importing = false;
-      ElMessage.success('已加载历史记录');
-    });
-  }).catch(() => {
-    // 用户取消加载
-  });
-}
-
 defineExpose({ inData, applyInData });
 </script>
 
 <template>
   <div class="control-section">
     <div class="main-controls">
-      <BuyPointsButton />
       <ControlButton
-        label="翻面"
-        :icon="Reading"
-        @click="actSwitchPaper"
-      />
-      <ControlButton
-        label="保存"
-        :icon="Download"
-        @click="() => actPrintPaper()"
-      />
-      <ControlButton
-        label="读取剪贴板"
+        label="导入/导出"
         :icon="DocumentCopy"
-        @click="actReadClipboard"
+        @click="actOpenInOutModal"
       />
+      <DiceMaid />
       <ControlButton
         label="更多"
         :icon="More"
         @click="actToggleMorePanel"
+      />
+      <ControlButton
+        label="翻面"
+        :icon="Reading"
+        @click="actSwitchPaper"
       />
     </div>
 
@@ -277,30 +190,14 @@ defineExpose({ inData, applyInData });
       >
         <div class="more-controls">
           <ControlButton
-            label="快速年龄修正"
-            :icon="Scissor"
-            @click="actAgeGrow"
-          />
-          <ControlButton
             label="重置人物卡"
             :icon="Refresh"
             @click="actResetCard"
           />
           <ControlButton
-            label="导入/导出数据"
-            :icon="DocumentCopy"
-            @click="actOpenInOutModal"
-          />
-          <ControlButton
-            label="读取历史"
-            :icon="DocumentCopy"
-            @click="actLoadHistory"
-          />
-          <DiceMaid />
-          <ControlButton
-            label="切换成功率模式"
-            :icon="Mug"
-            @click="switchTotalMode"
+            label="保存"
+            :icon="Download"
+            @click="() => actPrintPaper()"
           />
         </div>
       </el-tab-pane>
@@ -352,14 +249,10 @@ defineExpose({ inData, applyInData });
             title="车卡数据"
             :download="{
               url: outDataUrl,
-              name: downloadName,
+              name: 'COC',
               type: 'txt',
             }"
           />
-        </div>
-        <div class="downloader-hints">
-          <div>建议 PC 端使用，移动端兼容性较差：</div>
-          <div>· 如果头像未加载，重新生成几次即可</div>
         </div>
       </div>
     </ControlDialog>
@@ -501,11 +394,7 @@ defineExpose({ inData, applyInData });
   object-fit: contain;
 }
 
-@media screen and (min-width: 1024px) {
-  .downloader-hints {
-    display: none;
-  }
-}
+
 @media screen and (max-width: 1024px) {
   .reward-modal-body {
     grid-template-areas:

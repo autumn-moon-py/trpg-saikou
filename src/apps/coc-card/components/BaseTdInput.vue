@@ -27,23 +27,24 @@ function handleFocus(event: FocusEvent) {
     class="base-td-input"
     :value="value"
     :readonly="readonly"
+    :tabindex="readonly ? '-1' : undefined"
     @input="$emit('input', ($event.target as HTMLInputElement).value)"
-    @focus="handleFocus"
+    @focus="readonly ? undefined : handleFocus"
   />
 </template>
 
 <style scoped lang="scss">
 .base-td-input {
   width: 100%;
-  font-size: 1em;
-  background-color: transparent;
+  height: 100%;
   text-align: center;
+  min-width: 0;
+  padding: 0 0.14em;
+  background-color: transparent;
 
-  &:hover,
-  &:focus {
-    /* box-shadow: 0 0 1px 1px #534565; */
-    border-bottom: 1px solid #8a8a8a;
-    margin-bottom: -1px;
+  &:read-only {
+    cursor: default;
+    user-select: none;
   }
 }
 </style>

@@ -12,7 +12,6 @@ const pc = usePC();
     <PaperSection
       v-if="pc"
       title="幸运"
-      subTitle="Luck"
     >
       <div class="luck-section">
         <WritableRow

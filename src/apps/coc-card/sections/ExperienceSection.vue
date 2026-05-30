@@ -11,13 +11,17 @@ const pc = usePC();
   <PaperSection
     v-if="pc"
     title="经历过的模组"
-    subTitle="Experienced Scenarios"
   >
     <div class="section-body">
       <WritableArea
         label=""
         :rows="11"
         v-model="pc.experiencedModules"
+      />
+      <WritableArea
+        label=""
+        :rows="11"
+        v-model="pc.experiencedModules2"
       />
     </div>
   </PaperSection>
@@ -26,5 +30,12 @@ const pc = usePC();
 <style scoped lang="scss">
 .section-body {
   padding: 0.4em 0.6em 0.6em;
+  display: flex;
+  gap: 0.4em;
+}
+
+.section-body > * {
+  flex: 1;
+  min-width: 0;
 }
 </style>

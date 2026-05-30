@@ -10,14 +10,13 @@ const pc = usePC();
 <template>
   <PaperSection
     v-if="pc"
-    title="物品与装备"
-    subTitle="Possessions"
+    title="背包"
   >
     <div class="section-body">
       <WritableArea
         label=""
-        :rows="12"
-        :maxlength="18 * 12"
+        :rows="7"
+        :maxlength="18 * 7"
         v-model="pc.assets.items"
       />
     </div>

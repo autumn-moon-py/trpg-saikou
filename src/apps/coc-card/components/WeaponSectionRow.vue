@@ -81,22 +81,24 @@ const point = computed(() => getPoint(weapon.value.skill));
 const battleSkills = computed<BattleSkill[]>(() => {
   const skills = skillGroups
     .find(({ groupName }) => groupName === '战斗')!
-    .groupSkills.filter(({ name }) => name !== '闪避');
+    .groupSkills.filter(({ name }) => name !== '闪避' && name !== '武术');
   return skills.reduce<BattleSkill[]>((result, skill) => {
     const { name, init, group } = skill;
     const added: BattleSkill[] = !group
       ? [{ name, init }]
-      : group.skills.map((childSkill) => ({
-          name: `${name}(${childSkill.name})`,
-          init: childSkill.init || init,
-        }));
+      : group.skills
+          .filter(({ name }) => name !== '武术')
+          .map((childSkill) => ({
+            name: `${name}(${childSkill.name})`,
+            init: childSkill.init || init,
+          }));
     return [...result, ...added];
   }, []);
 });
 
 const battleSkillOptions = computed(() => {
   return [
-    { value: '', label: '' }, // 添加空选项
+    { value: '', label: '' },
     ...battleSkills.value.map(({ name }) => ({
       value: name,
       label: name,
@@ -164,6 +166,7 @@ function onSelectWeapon(name: string) {
       <div
         class="weapon-td-name"
         v-click-outside="hideWeaponSeletor"
+        @click="() => !props.readonly && showWeaponSeletor()"
       >
         <BaseTdInput
           :value="weapon.name"
@@ -175,6 +178,7 @@ function onSelectWeapon(name: string) {
           <div
             v-show="isWeaponSeletorShowing"
             class="weapon-selector"
+            @click.stop
           >
             <FlattenTree
               :tree="weaponTree"
@@ -187,6 +191,7 @@ function onSelectWeapon(name: string) {
     <div
       class="wp-td"
       :class="{
+        'has-skill': !!weapon.skill,
         [getTDClass(index, 1)]: true,
       }"
     >
@@ -202,6 +207,7 @@ function onSelectWeapon(name: string) {
     <div
       class="wp-td"
       :class="{
+        'col-mobile-hide': true,
         [getTDClass(index, 2)]: true,
       }"
     >
@@ -228,6 +234,7 @@ function onSelectWeapon(name: string) {
     <div
       class="wp-td"
       :class="{
+        'col-mobile-hide': true,
         [getTDClass(index, 4)]: true,
       }"
     >
@@ -240,6 +247,7 @@ function onSelectWeapon(name: string) {
     <div
       class="wp-td"
       :class="{
+        'col-mobile-hide': true,
         [getTDClass(index, 5)]: true,
       }"
     >
@@ -265,6 +273,7 @@ function onSelectWeapon(name: string) {
     <div
       class="wp-td"
       :class="{
+        'col-mobile-hide': true,
         [getTDClass(index, 7)]: true,
       }"
     >
@@ -277,6 +286,7 @@ function onSelectWeapon(name: string) {
     <div
       class="wp-td"
       :class="{
+        'col-mobile-hide': true,
         [getTDClass(index, 8)]: true,
       }"
     >
@@ -361,13 +371,46 @@ function onSelectWeapon(name: string) {
 @media print {
   @include printing-styles;
 }
+
+:deep(input[readonly]) {
+  caret-color: transparent;
+  pointer-events: none;
+}
+
+.has-skill :deep(.base-td-select) {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
 </style>
 
 <style lang="scss">
 @media screen and (max-width: 1024px) {
   .papers-editing {
     .weapon-selector {
-      display: none;
+      position: fixed;
+      top: 5vh;
+      left: 5vw;
+      right: 5vw;
+      bottom: 5vh;
+      transform: none;
+      width: auto;
+      max-height: none;
+      height: auto;
+      overflow: auto;
+      z-index: 100;
+      padding: 0.8em;
+      border-radius: 0.8em;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+
+      :deep(.flatten-tree) {
+        column-count: 2;
+        column-gap: 0.6em;
+        font-size: 0.8em;
+      }
+      :deep(.flatten-tree .group) {
+        break-inside: avoid;
+      }
     }
   }
 }

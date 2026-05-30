@@ -7,6 +7,9 @@ export const countTexts: Record<string, string> = {
   '4': '四',
   '5': '五',
   '6': '六',
+  '7': '七',
+  '8': '八',
+  '9': '九',
 };
 
 export const pointAttrTexts: Record<PointAttr, string> = {

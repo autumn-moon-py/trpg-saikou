@@ -11,7 +11,6 @@ const pc = usePC();
   <PaperSection
     v-if="pc"
     title="资产"
-    subTitle="Cash & Assets"
   >
     <div class="section-body">
       <WritableArea
@@ -22,8 +21,8 @@ const pc = usePC();
       />
       <WritableArea
         label="资产"
-        :rows="11"
-        :maxlength="17 * 11 - 2"
+        :rows="6"
+        :maxlength="17 * 6 - 2"
         v-model="pc.assets.assets"
       />
     </div>

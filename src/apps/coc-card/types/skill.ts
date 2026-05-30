@@ -1,8 +1,6 @@
 export interface Skill {
   // 技能名
   name: string;
-  // 文本介绍
-  intro: string;
   // 初始值
   init: number;
   // 初始值的 placeholder，为 0 则显示

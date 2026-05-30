@@ -36,10 +36,15 @@ watch(
   },
 );
 
+import { isMobile as detectMobile } from '@/utils/platform';
+
+const isMobile = computed(() => !pageData?.printing && detectMobile());
+
 const jobTree = computed(() => {
   const filterText = jobSearchInput.value;
   const filteredData = jobGroups.reduce((result, jobGroup) => {
     const { name: groupName, pinyin: groupPinyin, jobs } = jobGroup;
+    const label = isMobile.value ? groupName.replace(/\//g, ' ') : groupName;
     const filteredChildren = jobs.reduce(
       (result, job) => {
         if (
@@ -57,7 +62,7 @@ const jobTree = computed(() => {
     );
     if (filteredChildren.length) {
       result.push({
-        label: groupName,
+        label,
         key: groupName,
         children: filteredChildren,
       });
@@ -77,7 +82,6 @@ function onSelectJob(jobName: string) {
 <template>
   <PaperSection
     title="调查员"
-    subTitle="Investigator"
     v-if="pc"
   >
     <div
@@ -89,72 +93,74 @@ function onSelectJob(jobName: string) {
       <div class="info-row">
         <WritableRow
           label="姓名"
-          :char="5"
+          :char="5.5"
           v-model="pc.name"
         />
         <WritableRow
           label="玩家"
-          :char="5"
+          :char="5.5"
           v-model="pc.playerName"
         />
       </div>
-      <div class="info-row">
+      <WritableRow
+        class="full-width"
+        label="时代"
+        v-model="pc.time"
+      />
+      <!-- pc job selector -->
+      <div
+        class="rel full-width"
+        v-click-outside="closeJobSelector"
+      >
         <WritableRow
-          label="时代"
-          :char="5"
-          v-model="pc.time"
+          label="职业"
+          v-model="pc.job"
+          @focus="openJobSelector"
         />
-        <!-- pc job selector -->
-        <div
-          class="rel only-wide"
-          v-click-outside="closeJobSelector"
-        >
-          <WritableRow
-            label="职业"
-            :char="5"
-            v-model="pc.job"
-            @focus="openJobSelector"
-          />
-          <Transition name="slide-up">
-            <div
-              v-if="isJobSeletorShowing"
-              class="job-selector"
-            >
-              <div class="job-selector-header">
-                <input
-                  class="job-search-input"
-                  type="text"
-                  placeholder="输入职业名称或拼音可以进行搜索"
-                  v-model="jobSearchInput"
-                />
-              </div>
-              <FlattenTree
-                :tree="jobTree"
-                @select="(item) => onSelectJob(item.label)"
+        <Transition name="slide-up">
+          <div
+            v-if="isJobSeletorShowing"
+            class="job-selector"
+          >
+            <div class="job-selector-header">
+              <input
+                class="job-search-input"
+                type="text"
+                placeholder="输入职业名称或拼音可以进行搜索"
+                v-model="jobSearchInput"
               />
             </div>
-          </Transition>
-        </div>
-        <!-- mobile job selector -->
-        <div class="only-compact">
-          <WritableRow
-            label="职业"
-            :char="5"
-            v-model="pc.job"
-          />
-        </div>
+            <FlattenTree
+              :tree="jobTree"
+              @select="(item) => onSelectJob(item.label)"
+            />
+          </div>
+        </Transition>
       </div>
       <div class="info-row">
-        <WritableRow
-          label="年龄"
-          :char="5"
-          v-model="pc.age"
-        />
-        <WritableRow
-          label="性别"
-          :char="5"
-          v-model="pc.gender"
-        />
+        <div class="info-col">
+          <WritableRow
+            label="年龄"
+            :char="4"
+            v-model="pc.age"
+          />
+          <WritableRow
+            label="性别"
+            :char="4"
+            v-model="pc.gender"
+          />
+        </div>
+        <div class="info-col">
+          <WritableRow
+            label="住地"
+            :char="5"
+            v-model="pc.location"
+          />
+          <WritableRow
+            label="故乡"
+            :char="5"
+          />
+        </div>
       </div>
     </div>
   </PaperSection>
@@ -164,18 +170,48 @@ function onSelectJob(jobName: string) {
 .info-row {
   display: flex;
   gap: 1em;
+  min-width: 0;
 
-  & > * {
+  & :deep(.writable-row) {
     flex: 1 1 auto;
+    min-width: 0;
+  }
+  & :deep(.input) {
+    width: 100% !important;
+    flex: 1 0 0;
+    min-width: 0;
+  }
+  & :deep(.label-title) {
+    white-space: nowrap;
+  }
+}
+
+.info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  align-items: flex-start;
+  min-width: 0;
+
+  & :deep(.writable-row) {
+    min-width: 0;
   }
 }
 
 .info-section {
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 0.2em;
   padding: 0.4em 0.6em 0.6em;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.full-width {
+  align-self: stretch;
+  width: 100%;
 }
 
 .name-row {
@@ -210,15 +246,6 @@ function onSelectJob(jobName: string) {
   display: none;
 }
 
-@media screen and (max-width: 1024px) {
-  .only-compact {
-    display: block;
-  }
-  .only-wide {
-    display: none;
-  }
-}
-
 /* when print image & print */
 @mixin printing-styles {
   .job-selector {
@@ -237,7 +264,46 @@ function onSelectJob(jobName: string) {
 @media screen and (max-width: 1024px) {
   .papers-editing {
     .job-selector {
-      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: auto;
+      max-height: 50vh;
+      overflow: auto;
+      z-index: 100;
+      padding: 0.5em;
+
+      .group-label {
+        flex-basis: auto;
+        writing-mode: vertical-rl;
+        text-align: left;
+        letter-spacing: 1.5px;
+        padding-top: 5px;
+      }
+
+      .group {
+        padding-bottom: 0.3em;
+        gap: 0.2em;
+      }
+
+      .flatten-tree {
+        gap: 0.3em;
+      }
+
+      .job-selector-header {
+        padding-bottom: 0.5em;
+        margin-bottom: 0.5em;
+      }
+
+      .options {
+        gap: 0.2em 0.25em;
+      }
+    }
+    .rel .writable-row .input {
+      width: auto !important;
+    }
+    .info-section .input {
+      text-align: center;
     }
   }
 }

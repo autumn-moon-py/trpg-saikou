@@ -26,8 +26,8 @@ defineProps<Props>();
       <MythosSection class="col-1" />
     </div>
     <div class="section-row">
-      <FriendSection class="col-2" />
-      <ExperienceSection class="col-1" />
+      <ExperienceSection class="col-2" />
+      <FriendSection class="col-1" />
     </div>
   </PaperLayout>
 </template>
@@ -84,10 +84,13 @@ defineProps<Props>();
         text-align: center;
       }
     }
-  }
-  .papers-editing {
+
     .section-row {
       flex-wrap: wrap;
+
+      > * {
+        flex-basis: 100%;
+      }
     }
   }
 }
