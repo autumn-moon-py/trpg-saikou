@@ -34,10 +34,11 @@ export default function useCardManager(
   viewData: COCCardViewData,
   pageData: PageData,
 ) {
-  // ---------- 元数据列表（轻量，仅 ID+名称+时间） ----------
-  const cardMetaList = computed<CardMeta[]>(
-    () => ls.getItem('cardMetaList') ?? [],
-  );
+  // 按创建时间升序排列
+  const cardMetaList = computed<CardMeta[]>(() => {
+    const list = ls.getItem('cardMetaList') ?? [];
+    return [...list].sort((a, b) => a.createdAt - b.createdAt);
+  });
 
   const activeCardId = computed<string>(
     () => ls.getItem('activeCardId') ?? '',
@@ -107,15 +108,10 @@ export default function useCardManager(
     return id;
   }
 
-  /** 切换到指定卡片 */
-  function switchCard(id: string) {
-    if (id === activeCardId.value) return;
-    flushSave();
-
+  /** 将卡片数据加载到当前 pcRef/viewData 中（不触发 flushSave） */
+  function _loadCardIntoState(id: string) {
     const card = loadCard(id);
-    if (!card) return;
-
-    ls.setItem('activeCardId', id);
+    if (!card) return false;
 
     pageData.importing = true;
     pcRef.value = createPC(card.pc);
@@ -124,6 +120,18 @@ export default function useCardManager(
       (viewData as any)[k] = (card.viewData as any)[k];
     });
     setTimeout(() => { pageData.importing = false; }, 50);
+    return true;
+  }
+
+  /** 切换到指定卡片 */
+  function switchCard(id: string) {
+    if (id === activeCardId.value) return;
+    flushSave();
+
+    if (!loadCard(id)) return;
+
+    ls.setItem('activeCardId', id);
+    _loadCardIntoState(id);
   }
 
   /** 删除卡片 */
@@ -211,15 +219,18 @@ export default function useCardManager(
       cleanupOrphanedCards(validIds);
 
       const activeId = activeCardId.value || sorted[0].id;
-      const card = loadCard(activeId);
-      if (card) {
-        ls.setItem('activeCardId', activeId);
-        switchCard(activeId);
-      } else {
+      ls.setItem('activeCardId', activeId);
+
+      // 直接加载卡片数据（不走 switchCard，因为 activeCardId 已是对应值）
+      if (!_loadCardIntoState(activeId)) {
         // 卡片数据丢失，加载第一个有效的
-        const firstValid = existingList.find(m => loadCard(m.id) != null);
-        if (firstValid) switchCard(firstValid.id);
-        else createCard();
+        const firstValid = sorted.find(m => loadCard(m.id) != null);
+        if (firstValid) {
+          ls.setItem('activeCardId', firstValid.id);
+          _loadCardIntoState(firstValid.id);
+        } else {
+          createCard();
+        }
       }
       return;
     }
@@ -239,7 +250,7 @@ export default function useCardManager(
       ls.setItem('activeCardId', id);
       saveCard(id, legacy.pc, legacy.viewData || createViewData());
       ls.removeItem('autoSaved');
-      switchCard(id);
+      _loadCardIntoState(id);
       return;
     }
 
