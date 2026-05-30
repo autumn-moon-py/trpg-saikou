@@ -43,9 +43,9 @@ export default function useCardManager(
     () => ls.getItem('activeCardId') ?? '',
   );
 
-  // 排序后用于 UI
+  // 按创建时间升序（最早创建的在前）
   const sortedMetaList = computed<CardMeta[]>(() =>
-    [...cardMetaList.value].sort((a, b) => b.lastModified - a.lastModified),
+    [...cardMetaList.value].sort((a, b) => a.createdAt - b.createdAt),
   );
 
   // 当前卡片的元数据
