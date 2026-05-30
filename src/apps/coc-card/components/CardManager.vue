@@ -128,7 +128,7 @@ function cancelRename() {
 .card-manager {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   padding: 4px 12px;
   border-bottom: 1px solid var(--color-border);
   gap: 12px;

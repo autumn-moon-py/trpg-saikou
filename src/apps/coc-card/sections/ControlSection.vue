@@ -226,7 +226,7 @@ defineExpose({ inData, applyInData });
             @click="() => actPrintPaper()"
           />
           <ControlButton
-            label="角色卡存档"
+            label="存档管理"
             :icon="FolderOpened"
             @click="cardManagerModalVisible = true"
           />
@@ -330,7 +330,7 @@ defineExpose({ inData, applyInData });
     <!-- 角色卡存档管理弹窗 -->
     <ControlDialog
       v-model="cardManagerModalVisible"
-      title="角色卡存档管理"
+      title="存档管理"
     >
       <CardManager
         :metaList="cardManager.metaList.value"
