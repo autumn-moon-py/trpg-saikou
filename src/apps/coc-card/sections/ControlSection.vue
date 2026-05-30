@@ -10,6 +10,7 @@ import {
   More,
   Refresh,
   DocumentCopy,
+  FolderOpened,
 } from '@element-plus/icons-vue';
 
 // components
@@ -27,6 +28,7 @@ import { resetViewData } from '../models/viewData';
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
 import useAppLs from '../hooks/useAppLs';
+import CardManager from '../components/CardManager.vue';
 
 import type { COCCardViewData } from '../types/viewData';
 
@@ -46,7 +48,23 @@ const emit = defineEmits<Emits>();
 const ls = useAppLs();
 const pc = usePC();
 const viewData = useViewData();
+import type { ComputedRef } from 'vue';
+
 const pageData = usePageData();
+
+interface CardManagerAPI {
+  metaList: ComputedRef<{ id: string; name: string; saveName: string; lastModified: number; createdAt: number }[]>;
+  activeCardId: ComputedRef<string>;
+  currentMeta: ComputedRef<{ id: string; name: string; saveName: string; lastModified: number; createdAt: number } | undefined>;
+  createCard: () => void;
+  switchCard: (id: string) => void;
+  deleteCard: (id: string) => void;
+  duplicateCard: (id: string) => void;
+  renameCard: (id: string, name: string) => void;
+  resetCurrentCard: () => void;
+}
+
+const cardManager = inject<CardManagerAPI>('cardManager')!;
 
 const inData = ref('');
 const outData = computed(() => {
@@ -73,6 +91,7 @@ const inOutModalVisible = ref(false);
 const downloadModalVisible = ref(false);
 const morePanelVisible = ref(false);
 const morePanelActiveTab = ref('features');
+const cardManagerModalVisible = ref(false);
 
 function actSwitchPaper() {
   emit('switch-paper');
@@ -206,6 +225,11 @@ defineExpose({ inData, applyInData });
             :icon="Download"
             @click="() => actPrintPaper()"
           />
+          <ControlButton
+            label="角色卡存档"
+            :icon="FolderOpened"
+            @click="cardManagerModalVisible = true"
+          />
         </div>
       </el-tab-pane>
       <el-tab-pane
@@ -301,6 +325,23 @@ defineExpose({ inData, applyInData });
           </el-button>
         </div>
       </div>
+    </ControlDialog>
+
+    <!-- 角色卡存档管理弹窗 -->
+    <ControlDialog
+      v-model="cardManagerModalVisible"
+      title="角色卡存档管理"
+    >
+      <CardManager
+        :metaList="cardManager.metaList.value"
+        :activeCardId="cardManager.activeCardId.value"
+        :currentMeta="cardManager.currentMeta.value"
+        @create-card="cardManager.createCard"
+        @switch-card="cardManager.switchCard"
+        @delete-card="cardManager.deleteCard"
+        @duplicate-card="cardManager.duplicateCard"
+        @rename-card="(id, name) => cardManager.renameCard(id, name)"
+      />
     </ControlDialog>
 
     <!--  -->

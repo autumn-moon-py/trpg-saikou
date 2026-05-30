@@ -13,7 +13,6 @@ import useDerives from './hooks/useDerives';
 import useSuggestion from './hooks/useSuggestion';
 import useAppLs from './hooks/useAppLs';
 import useCardManager from './hooks/useCardManager';
-import CardManager from './components/CardManager.vue';
 
 import ControlSection from './sections/ControlSection.vue';
 import PaperFront from './PaperFront.vue';
@@ -147,16 +146,6 @@ async function actReadClipboard() {
       </div>
     </div>
     <div class="sticky-footer web-only">
-      <CardManager
-        :metaList="cardManager.metaList.value"
-        :activeCardId="cardManager.activeCardId.value"
-        :currentMeta="cardManager.currentMeta.value"
-        @create-card="cardManager.createCard"
-        @switch-card="cardManager.switchCard"
-        @delete-card="cardManager.deleteCard"
-        @duplicate-card="cardManager.duplicateCard"
-        @rename-card="(id, name) => cardManager.renameCard(id, name)"
-      />
       <ControlSection
         ref="controlSectionRef"
         :paperEls="paperEls"
