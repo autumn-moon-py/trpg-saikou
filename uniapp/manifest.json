@@ -1,10 +1,10 @@
 {
     "@platforms" : [ "android", "iPhone", "iPad" ],
     "id" : "H5DE094C7", /*应用的标识*/
-    "name" : "trpg_saikou", /*应用名称，程序桌面图标名称*/
+    "name" : "COC车卡", /*应用名称，程序桌面图标名称*/
     "version" : {
-        "name" : "1.3.0", /*应用版本名称*/
-        "code" : 130
+        "name" : "2.0.0", /*应用版本名称*/
+        "code" : 200
     },
     "description" : "", /*应用描述信息*/
     "icons" : {

@@ -99,7 +99,7 @@ function actSwitchPaper() {
 const { paperImages, printPaper } = usePrintPaper(props.paperEls);
 const downloadName = computed(() => {
   const { name, playerName } = pc?.value || {};
-  const prefix = '【TRPG赛高】';
+  const prefix = '';
   const suffix = [name, playerName].filter((v) => v).join('-');
   return `${prefix}${suffix}${suffix ? '-' : ''}`;
 });

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import PaperSection from '../components/PaperSection.vue';
 import WritableArea from '../components/WritableArea.vue';
 
