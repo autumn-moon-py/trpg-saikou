@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Plus, Delete, Copy } from '@element-plus/icons-vue';
+import { Plus, Delete, CopyDocument } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
 
 import { usePageData } from '../hooks/useProviders';
@@ -97,7 +97,7 @@ function cancelRename() {
 
         <!-- 复制按钮 -->
         <span class="card-tab-btn" @click.stop="emit('duplicate-card', meta.id)" title="复制">
-          <el-icon :size="10"><Copy /></el-icon>
+          <el-icon :size="10"><CopyDocument /></el-icon>
         </span>
         <!-- 删除按钮 -->
         <span
