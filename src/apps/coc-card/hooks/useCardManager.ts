@@ -202,11 +202,15 @@ export default function useCardManager(
 
     // 情况 1：已有元数据列表
     if (existingList && existingList.length > 0) {
+      // 按创建时间升序排列（修复旧数据可能的乱序）
+      const sorted = [...existingList].sort((a, b) => a.createdAt - b.createdAt);
+      ls.setItem('cardMetaList', sorted);
+
       // 僵尸清理
-      const validIds = new Set(existingList.map(m => m.id));
+      const validIds = new Set(sorted.map(m => m.id));
       cleanupOrphanedCards(validIds);
 
-      const activeId = activeCardId.value || existingList[0].id;
+      const activeId = activeCardId.value || sorted[0].id;
       const card = loadCard(activeId);
       if (card) {
         ls.setItem('activeCardId', activeId);
