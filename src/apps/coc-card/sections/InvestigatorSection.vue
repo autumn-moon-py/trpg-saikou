@@ -36,9 +36,9 @@ watch(
   },
 );
 
-import { isMobile as detectMobile } from '@/utils/platform';
+import { useIsMobileLayout } from '../hooks/usePlatform';
 
-const isMobile = computed(() => !pageData?.printing && detectMobile());
+const isMobile = useIsMobileLayout();
 
 const jobTree = computed(() => {
   const filterText = jobSearchInput.value;
@@ -159,6 +159,7 @@ function onSelectJob(jobName: string) {
           <WritableRow
             label="故乡"
             :char="5"
+            v-model="pc.hometown"
           />
         </div>
       </div>
@@ -261,7 +262,7 @@ function onSelectJob(jobName: string) {
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .job-selector {
       position: absolute;

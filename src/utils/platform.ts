@@ -1,38 +1,50 @@
 /**
  * 平台检测工具
  *
- * 每次调用实时检测，不缓存，以支持 DevTools 模拟切换。
- * 组件中配合 resize 事件实现响应式切换。
+ * 以屏幕宽高比为统一判断依据：
+ * - 高 ≥ 宽 → mobile（竖屏 / 手机排版）
+ * - 宽 > 高 → desktop（横屏 / Web 排版）
+ *
+ * 优先使用 Screen Orientation API 从物理传感器读取，
+ * 兜底使用 viewport 尺寸对比，覆盖折叠屏等兼容性场景。
+ * 所有有差异化 UI 的组件都应以此为准。
  */
-
 import { ref } from 'vue';
 
-function detectPlatform(): 'mobile' | 'desktop' {
-  const ua = navigator.userAgent;
-  if (
-    ua.includes('Electron') ||
-    (typeof (window as any).process?.versions?.electron === 'string')
-  ) {
-    return 'desktop';
+function detectOrientation(): 'mobile' | 'desktop' {
+  // Screen Orientation API：直接读取物理方向，折叠屏等设备最可靠
+  if (typeof screen !== 'undefined' && screen?.orientation?.type) {
+    return screen.orientation.type.startsWith('portrait') ? 'mobile' : 'desktop';
   }
-  if (/Mobile|Android|iPhone|iPad|iPod/i.test(ua)) {
-    return 'mobile';
-  }
-  return 'desktop';
+  // 兜底：viewport 尺寸对比
+  return window.innerWidth > window.innerHeight ? 'desktop' : 'mobile';
 }
 
-/** 响应式平台状态，resize 时自动更新 */
-export const platform = ref(detectPlatform());
-window.addEventListener('resize', () => {
-  platform.value = detectPlatform();
-});
+/** 响应式平台状态 */
+export const platform = ref<'mobile' | 'desktop'>(detectOrientation());
 
-/** 当前是否为移动端（竖屏布局） */
+// resize 兜底
+window.addEventListener('resize', () => {
+  platform.value = detectOrientation();
+});
+// Screen Orientation API 变化事件
+if (typeof screen !== 'undefined' && screen?.orientation) {
+  screen.orientation.addEventListener('change', () => {
+    platform.value = detectOrientation();
+  });
+} else {
+  // 老旧浏览器兜底
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => { platform.value = detectOrientation(); }, 100);
+  });
+}
+
+/** 当前是否为移动排版（竖屏，高 ≥ 宽） */
 export function isMobile(): boolean {
   return platform.value === 'mobile';
 }
 
-/** 当前是否为电脑端（横屏布局） */
+/** 当前是否为桌面排版（横屏，宽 > 高） */
 export function isDesktop(): boolean {
   return platform.value === 'desktop';
 }

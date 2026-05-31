@@ -7,8 +7,10 @@ import PaperSection from '../components/PaperSection.vue';
 import WeaponSectionRow from '../components/WeaponSectionRow.vue';
 
 import { usePC } from '../hooks/useProviders';
+import { useIsMobileLayout } from '../hooks/usePlatform';
 
 const pc = usePC();
+const isMobile = useIsMobileLayout();
 
 const localWeapons = computed<(Weapon | undefined)[]>(() => {
   return Array.from({ length: 4 }).map((_, index) => {
@@ -23,13 +25,13 @@ const localWeapons = computed<(Weapon | undefined)[]>(() => {
   >
     <div class="weapon-section-body">
       <div class="weapon-section-row">
-        <div class="wp-th th-deep">武器名称</div>
+        <div class="wp-th th-deep">{{ isMobile ? '名称' : '武器名称' }}</div>
         <div class="wp-th th-light">技能</div>
         <div class="wp-th th-deep col-mobile-hide">%</div>
         <div class="wp-th th-light">伤害</div>
         <div class="wp-th th-deep col-mobile-hide">射程</div>
         <div class="wp-th th-light col-mobile-hide">贯穿</div>
-        <div class="wp-th th-deep">次数</div>
+        <div class="wp-th th-deep col-mobile-hide">次数</div>
         <div class="wp-th th-light col-mobile-hide">装弹量</div>
         <div class="wp-th th-deep col-mobile-hide">故障</div>
       </div>
@@ -72,10 +74,14 @@ const localWeapons = computed<(Weapon | undefined)[]>(() => {
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
+    .weapon-section-body {
+      display: grid;
+      grid-template-columns: auto 5fr 5fr;
+    }
     .weapon-section-row {
-      grid-template-columns: 2fr 1fr 1fr 1fr;
+      display: contents;
     }
     .col-mobile-hide {
       display: none;

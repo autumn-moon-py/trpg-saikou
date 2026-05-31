@@ -35,6 +35,8 @@ defineEmits<Emits>();
   --local-var-gap: var(--writable-unit-gap, 0.2em);
   --local-var-label-font-size: var(--writable-unit-label-font-size, 0.8em);
   --local-var-input-padding: var(--writable-unit-input-padding, 0.2em);
+  --local-var-input-width: var(--writable-unit-input-width, 4em);
+  --local-var-input-margin: var(--writable-unit-input-margin, 0);
 
   display: flex;
   flex-direction: column;
@@ -49,8 +51,10 @@ defineEmits<Emits>();
 }
 
 .input {
-  flex: 1 1 auto;
-  width: 4em;
+  flex: 0 0 auto;
+  width: var(--local-var-input-width);
+  min-width: 2em;
+  margin: var(--local-var-input-margin);
   border-bottom: 1px solid var(--color-line);
   padding: var(--local-var-input-padding);
   font-size: 1em;

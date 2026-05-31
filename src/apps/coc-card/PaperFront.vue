@@ -20,6 +20,9 @@ import type { COCDeriveAttributes } from './types/character';
 
 const pc = usePC();
 
+import { useIsMobileLayout } from './hooks/usePlatform';
+const isMobile = useIsMobileLayout();
+
 function updateAttr(
   key: keyof COCDeriveAttributes,
   cKey: 'now' | 'start',
@@ -55,13 +58,13 @@ defineProps<Props>();
         <PaperSection title="理智值">
           <div class="units-section">
             <WritableUnit
-              label="当前理智"
+              :label="isMobile ? '当前' : '当前理智'"
               :modelValue="`${pc?.deriveAttributes?.sanity?.now ?? ''}`"
               @update:modelValue="(val) => updateAttr('sanity', 'now', val)"
             />
             <WritableDivider />
             <WritableUnit
-              label="最大理智"
+              :label="isMobile ? '最大' : '最大理智'"
               :modelValue="sanMax"
               readonly
             />
@@ -144,6 +147,18 @@ defineProps<Props>();
   width: 16em;
 }
 
+@media screen and (orientation: portrait) {
+  .papers-editing .sanity-column .units-section {
+    gap: 6px;
+    padding: 0.4em 6px;
+  }
+  .papers-editing .sanity-column :deep(.writable-unit .input) {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
 .investigator-section {
   min-width: 19.5em;
   max-width: 19em;
@@ -155,7 +170,7 @@ defineProps<Props>();
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .investigator-section {
       min-width: 0;

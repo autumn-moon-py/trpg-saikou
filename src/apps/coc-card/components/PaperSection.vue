@@ -69,7 +69,7 @@ withDefaults(defineProps<Props>(), {
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .paper-section {
       flex: 1 1 auto;

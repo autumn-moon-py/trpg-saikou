@@ -115,10 +115,8 @@ export default function useCardManager(
 
     pageData.importing = true;
     pcRef.value = createPC(card.pc);
-    Object.keys(card.viewData).forEach(key => {
-      const k = key as keyof COCCardViewData;
-      (viewData as any)[k] = (card.viewData as any)[k];
-    });
+    // 先重置为默认值，再应用加载数据，避免旧 key 残留导致串档
+    Object.assign(viewData, createViewData(), card.viewData);
     setTimeout(() => { pageData.importing = false; }, 50);
     return true;
   }
@@ -197,6 +195,8 @@ export default function useCardManager(
     pageData.importing = true;
     pcRef.value = createPC();
     Object.assign(viewData, createViewData());
+    // 清除自动保存缓存，防止旧数据被误恢复
+    ls.removeItem('autoSaved');
     setTimeout(() => {
       pageData.importing = false;
       flushSave();

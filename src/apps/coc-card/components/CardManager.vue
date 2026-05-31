@@ -196,7 +196,7 @@ function cancelRename() {
 @media print { .card-manager { display: none; } }
 
 /* ====== 移动端 (≤1024px) ====== */
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .card-manager {
     padding: 2px 8px;
   }

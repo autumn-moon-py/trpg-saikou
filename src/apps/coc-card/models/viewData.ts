@@ -8,19 +8,21 @@ interface ViewDataCreateOption
     limiti?: number
 }
 
-const storedOption: ViewDataCreateOption = {
+const DEFAULTS: Required<ViewDataCreateOption> = {
     limitp: 80,
     limiti: 70,
 }
 
-function defaultViewData (): COCCardViewData
+function defaultViewData (option?: Partial<ViewDataCreateOption>): COCCardViewData
 {
+    const opts = { ...DEFAULTS, ...option }
     return {
         showingChildSkills: resetShowingChildSkills(),
+        // 显式 undefined，确保 Object.assign 时清除残留的 jobSkills
+        jobSkills: undefined,
         skillLimits: {
-            // TODO 技能上限
-            pro: storedOption?.limitp || 80,
-            interest: storedOption?.limiti || 70,
+            pro: opts.limitp,
+            interest: opts.limiti,
         },
     }
 }
@@ -29,8 +31,7 @@ export function createViewData (
     option?: Partial<ViewDataCreateOption>,
 ): COCCardViewData
 {
-    Object.assign( storedOption, option )
-    return defaultViewData()
+    return defaultViewData( option )
 }
 
 export function resetViewData ( viewData: COCCardViewData )

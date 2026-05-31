@@ -1,6 +1,8 @@
 export interface Skill {
-  // 技能名
+  // 技能名（内部存储 key，不可改）
   name: string;
+  // 显示名（仅 UI 展示用）
+  displayName?: string;
   // 初始值
   init: number;
   // 初始值的 placeholder，为 0 则显示

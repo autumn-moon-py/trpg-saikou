@@ -186,7 +186,7 @@ defineExpose({ inData, applyInData });
   <div class="control-section">
     <div class="main-controls">
       <ControlButton
-        label="导入/导出"
+        label="数据"
         :icon="DocumentCopy"
         @click="actOpenInOutModal"
       />
@@ -289,7 +289,7 @@ defineExpose({ inData, applyInData });
 
     <ControlDialog
       v-model="inOutModalVisible"
-      title="导入/导出数据"
+      title="数据"
       @closed="inData = ''"
     >
       <div class="in-out-modal-body">
@@ -441,7 +441,11 @@ defineExpose({ inData, applyInData });
 }
 
 
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
+  .main-controls {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
   .reward-modal-body {
     grid-template-areas:
       'text'

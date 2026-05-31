@@ -63,7 +63,7 @@ const pageData = usePageData();
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .hint-section {
       white-space: normal;

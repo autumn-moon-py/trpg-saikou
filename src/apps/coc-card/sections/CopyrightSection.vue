@@ -61,7 +61,7 @@
   opacity: 0.5;
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .copyright-section {
     height: auto;
   }
@@ -69,7 +69,7 @@
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .copyright-section {
       flex-direction: column;

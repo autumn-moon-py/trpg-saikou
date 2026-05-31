@@ -43,12 +43,8 @@ export function createPC(
     age: '',
     gender: '',
     location: '',
-    hometown: '',
     attributes: {},
     battleAttributes: {},
-    pointValues: {},
-    proSkills: [],
-    skillPoints: [],
     weapons: [createWeapon(weapons[0])],
     stories: {
       app: '',
@@ -64,7 +60,12 @@ export function createPC(
     experiencedModules: '',
     experiencedModules2: '',
     friends: '',
+    // override 在先，安全默认值在后，防止老存档 undefined 冲掉默认值
     ...override,
+    hometown: override?.hometown ?? '',
+    pointValues: override?.pointValues ?? {},
+    proSkills: override?.proSkills ?? [],
+    skillPoints: override?.skillPoints ?? [],
     assets,
     status,
   };

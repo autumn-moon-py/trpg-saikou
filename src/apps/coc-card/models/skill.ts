@@ -49,6 +49,41 @@ export const dynamicInitFormulas: Record<string, ( pc: COCPlayerCharacter ) => n
     闪避: ( pc ) => Math.floor( ( pc.attributes.dex || 0 ) / 2 ),
 }
 
+/** 按技能名查找静态基础值（含别名匹配） */
+const skillInitMap = new Map<string, number>()
+skills.forEach( ( skill ) =>
+{
+    if ( skill.init ) skillInitMap.set( skill.name, skill.init )
+    // 别名
+    const aliases = skillNameAlias[ skill.name ]
+    if ( aliases )
+    {
+        aliases.forEach( ( alias ) =>
+        {
+            if ( skill.init ) skillInitMap.set( alias, skill.init )
+        } )
+    }
+    // 子技能
+    if ( skill.group?.skills )
+    {
+        skill.group.skills.forEach( ( child ) =>
+        {
+            if ( child.init ) skillInitMap.set( child.name, child.init )
+        } )
+    }
+} )
+
+/** 根据技能名获取基础值，优先动态公式，其次静态定义，兜底 0 */
+export function getSkillInit ( name: string, pc?: COCPlayerCharacter ): number
+{
+    if ( !name ) return 0
+    if ( pc && name in dynamicInitFormulas )
+    {
+        return dynamicInitFormulas[ name ]( pc )
+    }
+    return skillInitMap.get( name ) ?? 0
+}
+
 export function resetShowingChildSkills ( viewData?: COCCardViewData )
 {
     const map: Record<string, string[]> = {}
@@ -114,9 +149,9 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
 
     skills.forEach( ( skill ) =>
     {
-        const { name, init, group } = skill
+        const { name, displayName, init, group } = skill
         let realInit = dynamicInitFormulas[ name ] ? dynamicInitFormulas[ name ]( pc ) : init
-        const displayName = name.includes( 'Ω' ) ? name.slice( 0, -1 ) : name
+        const dispName = displayName ?? name
 
         if ( !group )
         {
@@ -130,7 +165,7 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
             {
                 total = realInit
             }
-            skillString += `${ displayName }${ total }`
+            skillString += `${ dispName }${ total }`
             // aliases
             const aliases = skillNameAlias[ name ]
             if ( aliases )
