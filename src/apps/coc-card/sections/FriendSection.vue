@@ -3,13 +3,12 @@ import { computed } from 'vue';
 import PaperSection from '../components/PaperSection.vue';
 import WritableArea from '../components/WritableArea.vue';
 
-import { usePC, usePageData } from '../hooks/useProviders';
-import { isMobile as detectMobile } from '@/utils/platform';
+import { usePC } from '../hooks/useProviders';
+import { useIsMobileLayout } from '../hooks/usePlatform';
 
 const pc = usePC();
-const pageData = usePageData();
 
-const isMobile = computed(() => !pageData?.printing && detectMobile());
+const isMobile = useIsMobileLayout();
 const rows = computed(() => isMobile.value ? 6 : 11);
 </script>
 

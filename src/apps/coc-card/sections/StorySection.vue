@@ -31,9 +31,9 @@ const leftConfigs: AreaConfig[] = reactive([
   { label: '特质', fieldName: 'trait' },
 ]);
 const rightConfigs: AreaConfig[] = reactive([]);
-import { isMobile as detectMobile } from '@/utils/platform';
+import { useIsMobileLayout } from '../hooks/usePlatform';
 
-const isMobile = computed(() => !pageData?.printing && detectMobile());
+const isMobile = useIsMobileLayout();
 
 const restConfig = reactive<Partial<AreaConfig>>({ fieldName: 'desc', size: 'base' });
 const restRows = computed(() => {
@@ -121,7 +121,7 @@ watch(
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .story-section-body {
       flex-direction: column;

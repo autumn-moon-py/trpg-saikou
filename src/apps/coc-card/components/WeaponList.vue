@@ -220,7 +220,7 @@ function applyWeapon(index: number, weapon?: Weapon) {
   pointer-events: none;
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .weapons-container {
     grid-template-columns: 1fr;
   }

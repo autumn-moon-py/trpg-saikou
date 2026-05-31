@@ -10,11 +10,9 @@ const vClickOutside: ObjectDirective<
       }
     };
     document.addEventListener('click', el._clickOutsideEvent);
-    document.addEventListener('focus', el._clickOutsideEvent, true);
   },
   unmounted: function unmounted(el) {
     document.removeEventListener('click', el._clickOutsideEvent);
-    document.removeEventListener('focus', el._clickOutsideEvent, true);
   },
 };
 

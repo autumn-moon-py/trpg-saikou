@@ -145,7 +145,7 @@ function applyJob(jobName: string) {
   }
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .jobs-container {
     grid-template-columns: 1fr;
   }

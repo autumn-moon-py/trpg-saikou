@@ -240,7 +240,7 @@ async function actReadClipboard() {
   }
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-animation-container.papers-editing {
     width: auto;
     height: auto;

@@ -46,4 +46,10 @@ const pc = usePC();
     flex: 1;
   }
 }
+
+@media screen and (orientation: portrait) {
+  .san-status-section :deep(.label) {
+    font-size: 0.78em;
+  }
+}
 </style>

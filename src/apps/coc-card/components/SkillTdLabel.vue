@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, computed } from 'vue';
+import { ref, inject, computed, watch, nextTick, onMounted } from 'vue';
 // @ts-ignore
 import vClickOutside from '@/directives/clickOutside';
 import { usePC } from '../hooks/useProviders';
@@ -11,6 +11,7 @@ import SoxCheckbox from '@/components/SoxCheckbox.vue';
 
 interface Props {
   skillName: string;
+  displaySkillName: string;
   comments?: string;
   childSkillData?: {
     name: string;
@@ -29,7 +30,13 @@ interface Emits {
 const emit = defineEmits<Emits>();
 
 const isOptionsShowing = ref(false);
+const childInputRef = ref<HTMLInputElement | null>(null);
+const mirrorRef = ref<HTMLSpanElement | null>(null);
 const currentData = computed(() => viewData?.showingChildSkills[props.skillName]);
+// 仅当有可选子技能列表时才启用自适应宽度
+const autoWidth = computed(() => !!props.childSkillData?.list?.length);
+// 当前子技能的文本值
+const childText = computed(() => currentData.value?.[props.childSkillData?.place ?? -1] ?? '');
 const existedData = computed(() => {
   if (['母语', '外语'].includes(props.skillName)) {
     return [
@@ -74,6 +81,19 @@ function selectChildSkill(childSkill: ChildSkill) {
   isOptionsShowing.value = false;
 }
 
+/** 读取镜像 span 宽度并应用到 input */
+function syncInputWidth() {
+  const input = childInputRef.value;
+  const mirror = mirrorRef.value;
+  if (!input || !mirror) return;
+  input.style.width = `${Math.max(mirror.offsetWidth + 2, 24)}px`;
+}
+
+// 文本变化后等 DOM 更新再同步宽度
+watch(childText, () => nextTick(syncInputWidth));
+// 挂载后初始化
+onMounted(() => nextTick(syncInputWidth));
+
 function changeProSkill(value: boolean) {
   if (!pc) return;
   if (value) {
@@ -99,7 +119,7 @@ function changeProSkill(value: boolean) {
         @check="changeProSkill"
       />
     </label>
-    <div>{{ skillName }}</div>
+    <div>{{ displaySkillName }}</div>
     <div
       v-if="!!childSkillData"
       class="child-skill-display"
@@ -107,15 +127,24 @@ function changeProSkill(value: boolean) {
       <div v-if="skillName">:</div>
       <div
         class="child-skill-input-container"
+        :class="{ 'child-skill-input-container--auto': autoWidth }"
         v-click-outside="() => (isOptionsShowing = false)"
       >
         <input
+          ref="childInputRef"
           type="text"
           class="child-skill-input"
+          :class="{ 'child-skill-input--auto': autoWidth }"
           :value="currentData?.[childSkillData.place]"
           @input="updateCurrentData(($event.target as HTMLInputElement).value)"
           @focus="isOptionsShowing = true"
         />
+        <!-- 镜像 span：与 input 同字号同字体，用于测量文本宽度 -->
+        <span
+          v-if="autoWidth"
+          ref="mirrorRef"
+          class="child-skill-mirror"
+        >{{ currentData?.[childSkillData.place] }}</span>
         <div
           class="child-skill-options"
           v-if="childSkillData.list?.length"
@@ -148,7 +177,6 @@ function changeProSkill(value: boolean) {
 .skill-td-label {
   display: flex;
   align-items: center;
-  margin-right: 0.6em;
   white-space: nowrap;
 
   --color-line: #8a8a8a;
@@ -176,9 +204,12 @@ function changeProSkill(value: boolean) {
   width: 2em;
   display: flex;
 }
+.child-skill-input-container--auto {
+  width: auto;
+  min-width: 2em;
+}
 .child-skill-input {
-  flex: 1 1 2em;
-  width: 2em;
+  min-width: 2em;
   font-size: 0.96em;
   line-height: 1.2em;
   text-align: center;
@@ -189,6 +220,20 @@ function changeProSkill(value: boolean) {
   &:focus {
     border-color: var(--color-black);
   }
+}
+.child-skill-input--auto {
+  width: auto;
+  font-family: inherit;
+}
+/* 镜像 span：与 input 同字号同字体，隐藏但保持尺寸 */
+.child-skill-mirror {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre;
+  font-size: 0.96em;
+  font-family: inherit;
+  letter-spacing: inherit;
+  pointer-events: none;
 }
 
 .child-skill-options {

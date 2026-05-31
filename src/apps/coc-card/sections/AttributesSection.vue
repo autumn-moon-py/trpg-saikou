@@ -6,10 +6,9 @@ import PaperSection from '../components/PaperSection.vue';
 import WritableRow from '../components/WritableRow.vue';
 
 import type { COCAttributesKey } from '../types/character';
-import { usePC, usePageData } from '../hooks/useProviders';
+import { usePC } from '../hooks/useProviders';
 
 const pc = usePC();
-const pageData = usePageData();
 
 interface RenderListItem {
   key: COCAttributesKey;
@@ -44,9 +43,9 @@ function updateAttr(key: COCAttributesKey, value: string) {
   pc.value.attributes[key] = value ? +value : undefined;
 }
 
-import { isMobile as detectMobile } from '@/utils/platform';
+import { useIsMobileLayout } from '../hooks/usePlatform';
 
-const isMobile = computed(() => !pageData?.printing && detectMobile());
+const isMobile = useIsMobileLayout();
 
 const allList = [...leftList, ...rightList];
 
@@ -60,19 +59,21 @@ const allList = [...leftList, ...rightList];
   >
     <div class="info-section">
       <template v-if="isMobile">
-        <div class="attributes-grid">
-          <WritableRow
-            v-for="item in allList"
-            :key="item.key"
-            :label="item.label"
-            :modelValue="`${pc?.attributes[item.key] ?? ''}`"
-            @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
-          />
+        <div class="attributes-mobile-wrap">
+          <div class="attributes-grid">
+            <WritableRow
+              v-for="item in allList"
+              :key="item.key"
+              :label="item.label"
+              :modelValue="`${pc?.attributes[item.key] ?? ''}`"
+              @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
+            />
+          </div>
+          <div
+            v-if="sum"
+            class="ponits-sum ponits-sum--mobile"
+          >总点数 {{ sum }}</div>
         </div>
-        <div
-          v-if="sum"
-          class="ponits-sum"
-        >总点数 {{ sum }}</div>
       </template>
       <template v-else>
         <div class="attributes-group">
@@ -160,6 +161,16 @@ const allList = [...leftList, ...rightList];
   transform: scale(0.88);
   transform-origin: center bottom;
 }
+.ponits-sum--mobile {
+  margin-top: 0.4em;
+}
+
+.attributes-mobile-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
 
 .attributes-grid {
   display: flex;
@@ -189,7 +200,7 @@ const allList = [...leftList, ...rightList];
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .attributes-group .input {
       width: 3.6em !important;

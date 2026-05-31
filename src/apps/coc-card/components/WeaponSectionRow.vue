@@ -261,6 +261,7 @@ function onSelectWeapon(name: string) {
     <div
       class="wp-td"
       :class="{
+        'col-mobile-hide': true,
         [getTDClass(index, 6)]: true,
       }"
     >
@@ -385,7 +386,7 @@ function onSelectWeapon(name: string) {
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .weapon-selector {
       position: fixed;

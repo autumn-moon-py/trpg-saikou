@@ -46,10 +46,16 @@ withDefaults(defineProps<Props>(), {});
   align-items: stretch;
   gap: 0.6em;
 }
+
+@media screen and (orientation: portrait) {
+  .paper-content {
+    padding: 1.5em 0.9em;
+  }
+}
 </style>
 
 <style lang="scss">
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .papers-editing {
     .paper {
       width: 100%;

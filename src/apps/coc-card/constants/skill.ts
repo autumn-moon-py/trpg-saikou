@@ -2,7 +2,8 @@ import type { Skill } from '../types/skill'
 
 export const skills: Skill[] = [
     {
-        name: '信誉',
+        name: '信用评级',
+        displayName: '信誉',
         init: 0
     },
     {
@@ -18,17 +19,20 @@ export const skills: Skill[] = [
         init: 20
     },
     {
-        name: '社交',
-        init: 0,
-        group: {
-            show: [ '' ],
-            skills: [
-                { name: '取悦', init: 15 },
-                { name: '话术', init: 5 },
-                { name: '恐吓', init: 15 },
-                { name: '说服', init: 10 },
-            ]
-    }
+        name: '取悦',
+        init: 15
+    },
+    {
+        name: '话术',
+        init: 5
+    },
+    {
+        name: '恐吓',
+        init: 15
+    },
+    {
+        name: '说服',
+        init: 10
     },
     {
         name: '心理学',
@@ -110,7 +114,8 @@ export const skills: Skill[] = [
         init: 1
     },
     {
-        name: '图书馆',
+        name: '图书馆使用',
+        displayName: '图书馆',
         init: 20
     },
     {
@@ -401,7 +406,8 @@ export const skills: Skill[] = [
         init: 5
     },
     {
-        name: '计算机',
+        name: '计算机使用Ω',
+        displayName: '计算机',
         init: 5
     },
     {
@@ -530,7 +536,8 @@ export const skills: Skill[] = [
         init: 1
     },
     {
-        name: '中医',
+        name: '东方医学',
+        displayName: '中医',
         init: 25,
         group: {
             show: [ '', '' ],
@@ -594,7 +601,8 @@ export const skills: Skill[] = [
         init: 5
     },
     {
-        name: '电子学',
+        name: '电子学Ω',
+        displayName: '电子学',
         init: 1
     },
     {
@@ -673,12 +681,12 @@ export const skills: Skill[] = [
 ]
 
 export const skillNameAlias: Record<string, string[]> = {
-    信誉: [ '信用', '信誉' ],
+    信用评级: [ '信用', '信誉' ],
     克苏鲁神话: [ '克苏鲁' ],
     取悦: [ '魅惑' ],
     汽车驾驶: [ '汽车', '驾驶' ],
-    图书馆: [ '图书馆' ],
-    计算机: [ '计算机', '电脑' ],
+    图书馆使用: [ '图书馆' ],
+    计算机使用Ω: [ '计算机', '电脑' ],
     '步/霰': [ '步枪', '霰弹枪' ],
     锁匠: [ '开锁', '撬锁' ],
     博物学: [ '自然学' ],

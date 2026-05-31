@@ -4,7 +4,7 @@ import type { ChildSkill } from '../types/skill';
 import type { SkillGroup, SkillGroups } from '../types/formattedSkill';
 import type { COCPCSkill, SkillPoint } from '../types/character';
 import type { Suggestion } from '../types/suggestion';
-import { dynamicInitFormulas } from '../models/skill';
+import { dynamicInitFormulas, getSkillInit } from '../models/skill';
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 
 import SkillTdLabel from './SkillTdLabel.vue';
@@ -29,6 +29,7 @@ interface TableRowData {
   // skill info
   key: string;
   skillName: string;
+  displaySkillName: string;
   skillKey: COCPCSkill;
   comments?: string;
   init: number;
@@ -62,11 +63,12 @@ function getTableData(data: SkillGroups, suggestion?: Suggestion) {
         // 信用评级范围
         const [w0, w1] = suggestion?.wealth ?? [-1, -1];
         const hasJob = !!(pc && pc.value.job);
-        const comments = skillKey === '信誉' && hasJob && w0 >= 0 && w1 >= 0 ? `(${w0}~${w1})` : '';
+        const comments = skillKey === '信用评级' && hasJob && w0 >= 0 && w1 >= 0 ? `(${w0}~${w1})` : '';
         const total = getTotal(points, init);
         let rowData: TableRowData = {
           key: skill.name,
           skillName: skill.name,
+          displaySkillName: skill.displayName ?? skill.name,
           skillKey: skill.name,
           comments,
           init,
@@ -100,10 +102,11 @@ function getTableData(data: SkillGroups, suggestion?: Suggestion) {
             const skillKey: COCPCSkill = [skill.name, childSkillName, childIndex];
             const skillPoint = findSkillPoints(skillKey);
             const points = skillPoint?.[1] || {};
-            const total = getTotal(points, init);
+            // 其它组：根据用户填写的技能名查找真实基础值
             if (pc && !skill.name) {
-              init = points.b || 0;
+              init = getSkillInit(childSkillName, pc.value);
             }
+            const total = getTotal(points, init);
             return {
               ...rowData,
               // group info
@@ -252,6 +255,7 @@ function getTotal(points: SkillPoint, init: number) {
         >
           <SkillTdLabel
             :skillName="row.skillName"
+            :displaySkillName="row.displaySkillName"
             :comments="row.comments"
             :childSkillData="row.childSkillData"
           />
@@ -478,7 +482,7 @@ function getTotal(points: SkillPoint, init: number) {
   display: none;
 }
 
-@media screen and (max-width: 1024px) {
+@media screen and (orientation: portrait) {
   .skill-table {
     .col-base {
       display: none;
