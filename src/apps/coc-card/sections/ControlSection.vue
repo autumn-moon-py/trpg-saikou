@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, reactive, defineExpose, inject } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
 
@@ -46,6 +46,13 @@ interface Emits {
 const emit = defineEmits<Emits>();
 
 const ls = useAppLs();
+
+// 覆写模式：默认 false（新建存档）
+const importOverwriteMode = computed({
+  get: () => ls.getItem('importOverwriteMode') ?? false,
+  set: (val: boolean) => ls.setItem('importOverwriteMode', val),
+});
+
 const pc = usePC();
 const viewData = useViewData();
 import type { ComputedRef } from 'vue';
@@ -61,6 +68,7 @@ interface CardManagerAPI {
   duplicateCard: (id: string) => void;
   renameCard: (id: string, name: string) => void;
   resetCurrentCard: () => void;
+  clearAllCards: () => void;
 }
 
 const cardManager = inject<CardManagerAPI>('cardManager')!;
@@ -162,12 +170,26 @@ function applyInData() {
   pageData && (pageData.importing = true);
   if (data && data.viewData && data.pc && viewData && pc) {
     try {
-      pc.value = createPC(data.pc);
+      // 覆写模式关闭时：先创建新存档再写入
+      if (!importOverwriteMode.value) {
+        cardManager.createCard();
+      }
+
+      const { pc: newPC, showingChildSkillsPatch } = createPC(data.pc, true);
+      pc.value = newPC;
       Object.keys(data.viewData).forEach((key) => {
         const k = key as keyof COCCardViewData;
         viewData[k] = data.viewData[k];
       });
-      ElMessage.success('已成功导入');
+      // 旧社交技能迁移后，将子技能名填入 showingChildSkills
+      if (showingChildSkillsPatch) {
+        for (const [key, value] of Object.entries(showingChildSkillsPatch)) {
+          viewData.showingChildSkills[key] = value;
+        }
+      }
+      ElMessage.success(
+        importOverwriteMode.value ? '已覆盖当前角色卡' : '已导入到新存档',
+      );
       inOutModalVisible.value = false;
       morePanelVisible.value = false;
     } catch (_) {
@@ -177,6 +199,24 @@ function applyInData() {
     ElMessage.error('数据有误，无法导入');
   }
   pageData && (pageData.importing = false);
+}
+
+async function actClearAllCards() {
+  try {
+    await ElMessageBox.confirm(
+      '确定要清空所有存档吗？此操作不可撤销，所有角色卡数据将被删除。',
+      '警告',
+      {
+        confirmButtonText: '清空',
+        cancelButtonText: '取消',
+        type: 'warning',
+      },
+    );
+    cardManager.clearAllCards();
+    ElMessage.success('已清空所有存档');
+  } catch {
+    // 用户取消
+  }
 }
 
 defineExpose({ inData, applyInData });
@@ -331,6 +371,20 @@ defineExpose({ inData, applyInData });
       v-model="cardManagerModalVisible"
       title="存档管理"
     >
+      <template #header-actions>
+        <div class="archive-header-actions">
+          <span class="archive-toggle-label">覆盖模式</span>
+          <el-switch v-model="importOverwriteMode" size="small" />
+          <el-button
+            type="danger"
+            size="small"
+            plain
+            @click="actClearAllCards"
+          >
+            清空存档
+          </el-button>
+        </div>
+      </template>
       <CardManager
         :metaList="cardManager.metaList.value"
         :activeCardId="cardManager.activeCardId.value"
@@ -440,6 +494,18 @@ defineExpose({ inData, applyInData });
   object-fit: contain;
 }
 
+
+.archive-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.archive-toggle-label {
+  font-size: 13px;
+  color: var(--color-text);
+  opacity: 0.72;
+}
 
 @media screen and (orientation: portrait) {
   .main-controls {

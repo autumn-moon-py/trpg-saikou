@@ -16,10 +16,17 @@ defineEmits<Emits>();
     class="coc-card-control-dialog"
     append-to-body
     align-center
-    :title="$props.title"
     :modelValue="$props.modelValue"
     @update:modelValue="(value: boolean) => $emit('update:modelValue', value)"
   >
+    <template #header>
+      <div class="control-dialog-header">
+        <span class="control-dialog-title">{{ $props.title }}</span>
+        <div class="control-dialog-header-actions">
+          <slot name="header-actions"></slot>
+        </div>
+      </div>
+    </template>
     <slot></slot>
   </el-dialog>
 </template>
@@ -34,5 +41,22 @@ defineEmits<Emits>();
   --color-action-bg: #3a3a3a;
   --color-action-bg-hover: #444;
   --color-action-bg-active: #4b4e53;
+}
+.control-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.control-dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+.control-dialog-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 </style>

@@ -10,6 +10,7 @@ import { createViewData } from '../models/viewData';
 
 import useAppLs, { type CardMeta } from './useAppLs';
 import { saveCard, loadCard, deleteCard as deleteCardStorage, cleanupOrphanedCards } from './useCardStorage';
+import { isDesktop } from '@/utils/platform';
 
 const ls = useAppLs();
 
@@ -114,9 +115,16 @@ export default function useCardManager(
     if (!card) return false;
 
     pageData.importing = true;
-    pcRef.value = createPC(card.pc);
+    const { pc, showingChildSkillsPatch } = createPC(card.pc, true);
+    pcRef.value = pc;
     // 先重置为默认值，再应用加载数据，避免旧 key 残留导致串档
     Object.assign(viewData, createViewData(), card.viewData);
+    // 旧社交技能迁移后，将子技能名填入 showingChildSkills
+    if (showingChildSkillsPatch) {
+      for (const [key, value] of Object.entries(showingChildSkillsPatch)) {
+        viewData.showingChildSkills[key] = value;
+      }
+    }
     setTimeout(() => { pageData.importing = false; }, 50);
     return true;
   }
@@ -171,11 +179,18 @@ export default function useCardManager(
 
     // 替换当前状态
     pageData.importing = true;
-    pcRef.value = createPC(source.pc);
+    const { pc: newPC, showingChildSkillsPatch } = createPC(source.pc, true);
+    pcRef.value = newPC;
     Object.keys(source.viewData).forEach(key => {
       const k = key as keyof COCCardViewData;
       (viewData as any)[k] = (source.viewData as any)[k];
     });
+    // 旧社交技能迁移后，将子技能名填入 showingChildSkills
+    if (showingChildSkillsPatch) {
+      for (const [key, value] of Object.entries(showingChildSkillsPatch)) {
+        viewData.showingChildSkills[key] = value;
+      }
+    }
     setTimeout(() => { pageData.importing = false; }, 50);
 
     return newId;
@@ -203,6 +218,13 @@ export default function useCardManager(
     }, 50);
   }
 
+  /** 清空所有存档，回到初始空白状态 */
+  function clearAllCards() {
+    cardMetaList.value.forEach(m => deleteCardStorage(m.id));
+    ls.setItem('cardMetaList', []);
+    createCard();
+  }
+
   // ---------- 初始化 & 迁移 ----------
 
   function init() {
@@ -217,6 +239,12 @@ export default function useCardManager(
       // 僵尸清理
       const validIds = new Set(sorted.map(m => m.id));
       cleanupOrphanedCards(validIds);
+
+      // 电脑端默认不自动加载存档，显示空白卡
+      if (isDesktop()) {
+        createCard();
+        return;
+      }
 
       const activeId = activeCardId.value || sorted[0].id;
       ls.setItem('activeCardId', activeId);
@@ -250,6 +278,13 @@ export default function useCardManager(
       ls.setItem('activeCardId', id);
       saveCard(id, legacy.pc, legacy.viewData || createViewData());
       ls.removeItem('autoSaved');
+
+      // 电脑端不自动加载迁移的存档
+      if (isDesktop()) {
+        createCard();
+        return;
+      }
+
       _loadCardIntoState(id);
       return;
     }
@@ -288,6 +323,7 @@ export default function useCardManager(
     duplicateCard,
     renameCard,
     resetCurrentCard,
+    clearAllCards,
     flushSave,
     init,
     startAutoSave,
