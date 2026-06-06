@@ -47,9 +47,9 @@ const emit = defineEmits<Emits>();
 
 const ls = useAppLs();
 
-// 覆写模式：默认 false（新建存档）
+// 覆写模式：默认 true（覆盖当前存档），保持与旧版行为一致
 const importOverwriteMode = computed({
-  get: () => ls.getItem('importOverwriteMode') ?? false,
+  get: () => ls.getItem('importOverwriteMode') ?? true,
   set: (val: boolean) => ls.setItem('importOverwriteMode', val),
 });
 
@@ -167,13 +167,14 @@ function copyOutData() {
 function applyInData() {
   const json = LZString.decompressFromEncodedURIComponent(inData.value);
   const data = JSON.parse(json);
-  pageData && (pageData.importing = true);
   if (data && data.viewData && data.pc && viewData && pc) {
     try {
-      // 覆写模式关闭时：先创建新存档再写入
+      // 覆写模式关闭时：先创建新存档再写入（此时不能设置 importing，否则 flushSave 被阻塞）
       if (!importOverwriteMode.value) {
         cardManager.createCard();
       }
+
+      pageData && (pageData.importing = true);
 
       const { pc: newPC, showingChildSkillsPatch } = createPC(data.pc, true);
       pc.value = newPC;

@@ -60,7 +60,8 @@ export default function useAutoSave (
             ElMessageBox.confirm( vnode, '检测到编辑过的人物卡', { showClose: false } ).then( () =>
             {
                 pageData.importing = true
-                pcRef.value = createPC( savedPC! )
+                const { pc, showingChildSkillsPatch } = createPC( savedPC!, true )
+                pcRef.value = pc
                 if ( savedViewData )
                 {
                     Object.keys( savedViewData ).forEach( ( key ) =>
@@ -68,6 +69,14 @@ export default function useAutoSave (
                         const k = key as keyof COCCardViewData
                         viewData[ k ] = savedViewData[ k ] as any
                     } )
+                }
+                // 旧社交技能迁移后，将子技能名填入 showingChildSkills
+                if ( showingChildSkillsPatch )
+                {
+                    for ( const [ key, value ] of Object.entries( showingChildSkillsPatch ) )
+                    {
+                        viewData.showingChildSkills[ key ] = value
+                    }
                 }
                 nextTick( () =>
                 {

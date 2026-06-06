@@ -47,6 +47,7 @@ defineEmits<Emits>();
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  padding-right: 40px;
 }
 .control-dialog-title {
   font-size: 18px;
