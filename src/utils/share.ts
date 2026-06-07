@@ -12,7 +12,7 @@ declare global {
  * 调用系统分享面板分享文本。
  * 自动检测 UniApp / 浏览器环境，选择对应的分享 API。
  * @param text 要分享的文本内容
- * @returns true 表示成功调起或被用户取消，false 表示环境不支持
+ * @returns true 表示成功调起或被用户取消，false 表示分享失败或环境不支持
  */
 export async function shareText(text: string): Promise<boolean> {
   // 1) UniApp 环境优先
@@ -20,9 +20,10 @@ export async function shareText(text: string): Promise<boolean> {
     try {
       await window.uni.share({ content: text });
       return true;
-    } catch {
-      // 用户取消或其他异常，静默处理
-      return true;
+    } catch (e) {
+      console.warn('uni.share 失败:', e);
+      ElMessage.error('分享失败');
+      return false;
     }
   }
 
@@ -35,12 +36,14 @@ export async function shareText(text: string): Promise<boolean> {
       const e = err as DOMException | undefined;
       if (e?.name !== 'AbortError') {
         ElMessage.error('分享失败');
+        return false;
       }
+      // 用户取消，静默处理
       return true;
     }
   }
 
   // 3) 不支持
-  ElMessage.info('已复制，当前环境不支持系统分享');
+  ElMessage.info('当前环境不支持系统分享');
   return false;
 }
