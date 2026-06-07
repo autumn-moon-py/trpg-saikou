@@ -254,7 +254,7 @@ async function actClearAllCards() {
   }
 }
 
-defineExpose({ inData, applyInData });
+defineExpose({ inData, applyInData, copyOutData });
 </script>
 
 <template>
