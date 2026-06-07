@@ -30,7 +30,7 @@ import usePrintPaper from '../hooks/usePrintPaper';
 import useAppLs from '../hooks/useAppLs';
 import CardManager from '../components/CardManager.vue';
 import { shareText } from '@/utils/share';
-import { isMobile } from '@/utils/platform';
+import { useIsMobileLayout } from '../hooks/usePlatform';
 
 import type { COCCardViewData } from '../types/viewData';
 
@@ -60,6 +60,7 @@ const viewData = useViewData();
 import type { ComputedRef } from 'vue';
 
 const pageData = usePageData();
+const isMobileLayout = useIsMobileLayout();
 
 interface CardManagerAPI {
   metaList: ComputedRef<{ id: string; name: string; saveName: string; lastModified: number; createdAt: number }[]>;
@@ -168,7 +169,6 @@ function copyOutData() {
 }
 async function shareOutData() {
   copy(outData.value);
-  ElMessage.success('已复制到剪贴板');
   await shareText(outData.value);
 }
 function applyInData() {
@@ -357,7 +357,7 @@ defineExpose({ inData, applyInData });
               复制以上内容
             </el-button>
             <el-button
-              v-if="isMobile()"
+              v-if="isMobileLayout"
               @click="shareOutData"
             >
               分享
