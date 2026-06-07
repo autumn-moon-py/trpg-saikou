@@ -407,6 +407,7 @@ defineExpose({ inData, applyInData });
               导入以上内容
             </el-button>
             <el-button
+              type="primary"
               @click="readFromClipboard"
             >
               读取剪贴板
@@ -521,6 +522,7 @@ defineExpose({ inData, applyInData });
 }
 .in-out-modal-actions {
   display: flex;
+  justify-content: center;
   gap: 12px;
 }
 
@@ -578,6 +580,7 @@ defineExpose({ inData, applyInData });
   }
   .in-out-modal-panel:first-child .in-out-modal-actions {
     flex-direction: column;
+    align-items: center;
     gap: 8px;
   }
 }
