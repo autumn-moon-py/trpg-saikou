@@ -579,6 +579,9 @@ defineExpose({ inData, applyInData });
   .in-out-modal-panel:first-child {
     flex: 0 0 25%;
   }
+  .in-out-modal-panel {
+    justify-content: center;
+  }
   .in-out-modal-body .in-out-modal-actions {
     flex-direction: column;
     align-items: center;
