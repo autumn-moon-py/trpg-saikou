@@ -385,7 +385,6 @@ defineExpose({ inData, applyInData });
             </el-button>
             <el-button
               v-if="showShareButton"
-              class="share-button"
               @click="shareOutData"
             >
               分享
@@ -400,17 +399,19 @@ defineExpose({ inData, applyInData });
             placeholder="将文本粘贴到这里"
             resize="none"
           ></el-input>
-          <el-button
-            type="primary"
-            @click="applyInData"
-          >
-            导入以上内容
-          </el-button>
-          <el-button
-            @click="readFromClipboard"
-          >
-            读取剪贴板
-          </el-button>
+          <div class="in-out-modal-actions">
+            <el-button
+              type="primary"
+              @click="applyInData"
+            >
+              导入以上内容
+            </el-button>
+            <el-button
+              @click="readFromClipboard"
+            >
+              读取剪贴板
+            </el-button>
+          </div>
         </div>
       </div>
     </ControlDialog>
@@ -520,9 +521,7 @@ defineExpose({ inData, applyInData });
 }
 .in-out-modal-actions {
   display: flex;
-}
-.share-button {
-  margin-left: 12px;
+  gap: 12px;
 }
 
 .reward-modal-body {
@@ -580,9 +579,6 @@ defineExpose({ inData, applyInData });
   .in-out-modal-panel:first-child .in-out-modal-actions {
     flex-direction: column;
     gap: 8px;
-  }
-  .in-out-modal-panel:first-child .share-button {
-    margin-left: 0;
   }
 }
 </style>
