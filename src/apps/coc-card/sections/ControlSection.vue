@@ -558,5 +558,12 @@ defineExpose({ inData, applyInData });
   .in-out-modal-panel:first-child {
     flex: 0 0 25%;
   }
+  .in-out-modal-panel:first-child .in-out-modal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .in-out-modal-panel:first-child .share-button {
+    margin-left: 0;
+  }
 }
 </style>
