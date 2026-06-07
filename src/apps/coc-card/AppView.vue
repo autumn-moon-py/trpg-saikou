@@ -18,7 +18,6 @@ import ControlSection from './sections/ControlSection.vue';
 import PaperFront from './PaperFront.vue';
 import PaperBack from './PaperBack.vue';
 import { ElMessage } from 'element-plus';
-import { DocumentCopy } from '@element-plus/icons-vue';
 
 const qsObject = qs.parse(location.search.slice(1));
 const pcRef = ref<COCPlayerCharacter>(createPC());
@@ -163,9 +162,7 @@ function actCopyExport() {
       title="一键复制导出数据"
       @click="actCopyExport"
     >
-      <el-icon :size="20">
-        <DocumentCopy />
-      </el-icon>
+      出
     </button>
     <button
       v-if="isFull"
@@ -173,9 +170,7 @@ function actCopyExport() {
       title="读取剪贴板"
       @click="actReadClipboard"
     >
-      <el-icon :size="20">
-        <DocumentCopy />
-      </el-icon>
+      入
     </button>
   </main>
 </template>
