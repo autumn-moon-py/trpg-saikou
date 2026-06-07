@@ -29,6 +29,8 @@ import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
 import useAppLs from '../hooks/useAppLs';
 import CardManager from '../components/CardManager.vue';
+import { shareText } from '@/utils/share';
+import { isMobile } from '@/utils/platform';
 
 import type { COCCardViewData } from '../types/viewData';
 
@@ -163,6 +165,11 @@ function actOpenInOutModal() {
 function copyOutData() {
   copy(outData.value);
   ElMessage.success('已复制到剪贴板');
+}
+async function shareOutData() {
+  copy(outData.value);
+  ElMessage.success('已复制到剪贴板');
+  await shareText(outData.value);
 }
 function applyInData() {
   const json = LZString.decompressFromEncodedURIComponent(inData.value);
@@ -342,12 +349,20 @@ defineExpose({ inData, applyInData });
             :readonly="true"
             resize="none"
           ></el-input>
-          <el-button
-            type="primary"
-            @click="copyOutData"
-          >
-            复制以上内容
-          </el-button>
+          <div class="in-out-modal-actions">
+            <el-button
+              type="primary"
+              @click="copyOutData"
+            >
+              复制以上内容
+            </el-button>
+            <el-button
+              v-if="isMobile()"
+              @click="shareOutData"
+            >
+              分享
+            </el-button>
+          </div>
         </div>
         <div class="in-out-modal-panel">
           <el-input
@@ -469,6 +484,10 @@ defineExpose({ inData, applyInData });
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+.in-out-modal-actions {
+  display: flex;
+  gap: 12px;
 }
 
 .reward-modal-body {
