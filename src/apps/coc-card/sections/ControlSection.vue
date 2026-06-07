@@ -584,7 +584,6 @@ defineExpose({ inData, applyInData });
   }
   .in-out-modal-body .in-out-modal-actions {
     flex-direction: column;
-    align-items: center;
     gap: 8px;
   }
   .in-out-modal-body :deep(.el-textarea__inner) {
