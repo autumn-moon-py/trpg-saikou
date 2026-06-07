@@ -385,6 +385,7 @@ defineExpose({ inData, applyInData });
             </el-button>
             <el-button
               v-if="showShareButton"
+              type="primary"
               @click="shareOutData"
             >
               分享
@@ -578,7 +579,7 @@ defineExpose({ inData, applyInData });
   .in-out-modal-panel:first-child {
     flex: 0 0 25%;
   }
-  .in-out-modal-panel:first-child .in-out-modal-actions {
+  .in-out-modal-body .in-out-modal-actions {
     flex-direction: column;
     align-items: center;
     gap: 8px;
