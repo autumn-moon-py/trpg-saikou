@@ -555,5 +555,8 @@ defineExpose({ inData, applyInData });
       'qr2';
     grid-template-columns: 1fr;
   }
+  .in-out-modal-panel:first-child {
+    flex: 0 0 25%;
+  }
 }
 </style>
