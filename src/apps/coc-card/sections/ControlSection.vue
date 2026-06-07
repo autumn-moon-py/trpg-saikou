@@ -222,6 +222,20 @@ function applyInData() {
   pageData && (pageData.importing = false);
 }
 
+async function readFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      inData.value = text;
+      ElMessage.success('已读取剪贴板内容');
+    } else {
+      ElMessage.info('剪贴板为空');
+    }
+  } catch {
+    ElMessage.error('无法读取剪贴板，请检查权限');
+  }
+}
+
 async function actClearAllCards() {
   try {
     await ElMessageBox.confirm(
@@ -391,6 +405,11 @@ defineExpose({ inData, applyInData });
             @click="applyInData"
           >
             导入以上内容
+          </el-button>
+          <el-button
+            @click="readFromClipboard"
+          >
+            读取剪贴板
           </el-button>
         </div>
       </div>
