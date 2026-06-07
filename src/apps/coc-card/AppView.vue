@@ -104,6 +104,10 @@ async function actReadClipboard() {
     ElMessage.error('无法读取剪贴板');
   }
 }
+
+function actCopyExport() {
+  controlSectionRef.value?.copyOutData();
+}
 </script>
 
 <template>
@@ -153,6 +157,16 @@ async function actReadClipboard() {
         @switch-paper="() => (pageData.paperInFront = !pageData.paperInFront)"
       />
     </div>
+    <button
+      v-if="isFull"
+      class="fab-clipboard fab-copy-export web-only"
+      title="一键复制导出数据"
+      @click="actCopyExport"
+    >
+      <el-icon :size="20">
+        <DocumentCopy />
+      </el-icon>
+    </button>
     <button
       v-if="isFull"
       class="fab-clipboard web-only"
@@ -240,6 +254,10 @@ async function actReadClipboard() {
   }
 }
 
+.fab-copy-export {
+  right: 84px;
+}
+
 @media screen and (orientation: portrait) {
   .papers-animation-container.papers-editing {
     width: auto;
@@ -248,6 +266,9 @@ async function actReadClipboard() {
   .paper-container.is-mobile {
     overflow: visible;
     perspective: none;
+  }
+  .fab-clipboard {
+    display: none;
   }
 }
 
