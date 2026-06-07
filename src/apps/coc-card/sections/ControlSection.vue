@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, reactive, defineExpose, inject } from 'vue';
+import { computed, nextTick, ref, reactive, defineExpose, inject, onMounted, onUnmounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import LZString from 'lz-string';
 import copy from 'copy-to-clipboard';
@@ -61,6 +61,19 @@ import type { ComputedRef } from 'vue';
 
 const pageData = usePageData();
 const isMobileLayout = useIsMobileLayout();
+
+// DevTools 模拟竖屏：platform API 优先读取物理方向，不反映模拟视口，
+// 补充视口比例检测使开发者工具中的竖屏模拟也能生效
+const _isPortraitViewport = ref(window.innerHeight > window.innerWidth);
+function _onViewportResize() {
+  _isPortraitViewport.value = window.innerHeight > window.innerWidth;
+}
+onMounted(() => window.addEventListener('resize', _onViewportResize));
+onUnmounted(() => window.removeEventListener('resize', _onViewportResize));
+
+const showShareButton = computed(
+  () => isMobileLayout.value || (!pageData?.printing && _isPortraitViewport.value),
+);
 
 interface CardManagerAPI {
   metaList: ComputedRef<{ id: string; name: string; saveName: string; lastModified: number; createdAt: number }[]>;
@@ -357,7 +370,8 @@ defineExpose({ inData, applyInData });
               复制以上内容
             </el-button>
             <el-button
-              v-if="isMobileLayout"
+              v-if="showShareButton"
+              class="share-button"
               @click="shareOutData"
             >
               分享
@@ -487,7 +501,9 @@ defineExpose({ inData, applyInData });
 }
 .in-out-modal-actions {
   display: flex;
-  gap: 12px;
+}
+.share-button {
+  margin-left: 12px;
 }
 
 .reward-modal-body {
