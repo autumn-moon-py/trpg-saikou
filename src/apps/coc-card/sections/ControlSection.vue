@@ -584,9 +584,9 @@ defineExpose({ inData, applyInData });
     align-items: center;
     gap: 8px;
   }
-  .in-out-modal-body .el-textarea__inner {
-    height: 100px;
-    min-height: 100px;
+  .in-out-modal-body :deep(.el-textarea__inner) {
+    height: 100px !important;
+    min-height: unset !important;
   }
 }
 </style>
