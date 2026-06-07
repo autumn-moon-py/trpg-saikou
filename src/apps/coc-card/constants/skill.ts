@@ -19,20 +19,17 @@ export const skills: Skill[] = [
         init: 20
     },
     {
-        name: '取悦',
-        init: 15
-    },
-    {
-        name: '话术',
-        init: 5
-    },
-    {
-        name: '恐吓',
-        init: 15
-    },
-    {
-        name: '说服',
-        init: 10
+        name: '社交',
+        init: 0,
+        group: {
+            show: [ '' ],
+            skills: [
+                { name: '取悦', init: 15 },
+                { name: '话术', init: 5 },
+                { name: '恐吓', init: 15 },
+                { name: '说服', init: 10 },
+            ]
+    }
     },
     {
         name: '心理学',

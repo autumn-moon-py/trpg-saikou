@@ -340,7 +340,7 @@ function getTotal(points: SkillPoint, init: number) {
             class="mobile-init-hint"
           >{{ row.points.b ?? (row.init ?? row.initPlaceholder) }}</span>
           <span
-            v-if="pageData?.showTotalSeparation"
+            v-if="pageData?.showTotalSeparation && !pageData?.printing"
             class="total-separation"
           >
             <span
@@ -444,6 +444,7 @@ function getTotal(points: SkillPoint, init: number) {
 .td-skill-name {
   text-align: left;
   width: 6em;
+  padding-right: 2px;
 }
 .td-skill-name-special :deep(.skill-td-checkbox-label) {
   visibility: hidden;

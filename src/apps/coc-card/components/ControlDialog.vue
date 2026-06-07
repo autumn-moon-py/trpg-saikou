@@ -45,8 +45,7 @@ defineEmits<Emits>();
 .control-dialog-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  gap: 16px;
   padding-right: 40px;
 }
 .control-dialog-title {
