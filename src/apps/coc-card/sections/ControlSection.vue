@@ -589,10 +589,10 @@ defineExpose({ inData, applyInData });
     gap: 8px;
   }
   .in-out-modal-panel:first-child .in-out-modal-actions :deep(.el-button:last-child) {
-    margin-right: 2px;
+    margin-right: 10px;
   }
   .in-out-modal-panel:last-child .in-out-modal-actions :deep(.el-button:last-child) {
-    margin-right: 2px;
+    margin-right: 7px;
   }
   .in-out-modal-body :deep(.el-textarea__inner) {
     height: 100px !important;
