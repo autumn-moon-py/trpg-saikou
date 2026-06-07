@@ -179,6 +179,13 @@ defineProps<Props>();
     .attributes-section {
       max-width: 100%;
     }
+    .section-row {
+      flex-wrap: wrap;
+
+      > * {
+        flex-basis: 100%;
+      }
+    }
     .hp-mp-column {
       flex-direction: row;
       gap: 0.4em;

@@ -1,6 +1,6 @@
 {
     "name": "trpg-autumnmoon",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "private": true,
     "main": "dist-electron/index.js",
     "scripts": {
@@ -45,5 +45,8 @@
         "vue": "^3.4.21",
         "vue-router": "^4.3.0",
         "vue-tsc": "^2.0.6"
+    },
+    "dependencies": {
+        "electron-window-state": "^5.0.3"
     }
 }

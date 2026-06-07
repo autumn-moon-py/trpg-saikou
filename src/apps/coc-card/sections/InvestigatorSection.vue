@@ -102,40 +102,40 @@ function onSelectJob(jobName: string) {
           v-model="pc.playerName"
         />
       </div>
-      <WritableRow
-        class="full-width"
-        label="时代"
-        v-model="pc.time"
-      />
-      <!-- pc job selector -->
-      <div
-        class="rel full-width"
-        v-click-outside="closeJobSelector"
-      >
+      <div class="info-row info-row--time-job">
         <WritableRow
-          label="职业"
-          v-model="pc.job"
-          @focus="openJobSelector"
+          label="时代"
+          v-model="pc.time"
         />
-        <Transition name="slide-up">
-          <div
-            v-if="isJobSeletorShowing"
-            class="job-selector"
-          >
-            <div class="job-selector-header">
-              <input
-                class="job-search-input"
-                type="text"
-                placeholder="输入职业名称或拼音可以进行搜索"
-                v-model="jobSearchInput"
+        <div
+          class="rel"
+          v-click-outside="closeJobSelector"
+        >
+          <WritableRow
+            label="职业"
+            v-model="pc.job"
+            @focus="openJobSelector"
+          />
+          <Transition name="slide-up">
+            <div
+              v-if="isJobSeletorShowing"
+              class="job-selector"
+            >
+              <div class="job-selector-header">
+                <input
+                  class="job-search-input"
+                  type="text"
+                  placeholder="输入职业名称或拼音可以进行搜索"
+                  v-model="jobSearchInput"
+                />
+              </div>
+              <FlattenTree
+                :tree="jobTree"
+                @select="(item) => onSelectJob(item.label)"
               />
             </div>
-            <FlattenTree
-              :tree="jobTree"
-              @select="(item) => onSelectJob(item.label)"
-            />
-          </div>
-        </Transition>
+          </Transition>
+        </div>
       </div>
       <div class="info-row">
         <div class="info-col">
@@ -184,6 +184,17 @@ function onSelectJob(jobName: string) {
   }
   & :deep(.label-title) {
     white-space: nowrap;
+  }
+}
+
+/* 横屏：时代和职业各占一行 */
+.info-row--time-job {
+  flex-direction: column;
+  align-self: stretch;
+  gap: 0.2em;
+
+  & :deep(.writable-row) {
+    flex: 0 0 auto;
   }
 }
 
@@ -305,6 +316,29 @@ function onSelectJob(jobName: string) {
     }
     .info-section .input {
       text-align: center;
+    }
+    /* 竖屏：时代和职业并排，比例 4:6 */
+    .info-row--time-job {
+      flex-direction: row;
+      min-width: 0;
+
+      // 时代 writable-row (直接子元素) 占 4
+      & > .writable-row {
+        flex: 4 !important;
+        min-width: 0 !important;
+        margin-right: 9px;
+      }
+      // .rel 容器（职业的包裹层）占 6
+      .rel {
+        flex: 6 !important;
+        min-width: 0 !important;
+      }
+      // input 允许收缩（覆写横屏 scoped 的 flex: 1 0 0 + 内联 width）
+      .input {
+        flex: 1 1 0% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
     }
   }
 }

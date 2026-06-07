@@ -2,7 +2,7 @@
 import { ref, inject, computed, watch, nextTick, onMounted } from 'vue';
 // @ts-ignore
 import vClickOutside from '@/directives/clickOutside';
-import { usePC } from '../hooks/useProviders';
+import { usePC, usePageData } from '../hooks/useProviders';
 import type { ChildSkill } from '../types/skill';
 import type { COCCardViewData } from '../types/viewData';
 import type { COCPCSkill } from '../types/character';
@@ -22,6 +22,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const pc = usePC();
+const pageData = usePageData();
 const viewData = inject<COCCardViewData>('viewData');
 
 interface Emits {
@@ -91,6 +92,8 @@ function syncInputWidth() {
 
 // 文本变化后等 DOM 更新再同步宽度
 watch(childText, () => nextTick(syncInputWidth));
+// 打印状态变化时重新计算宽度（布局变化导致镜像尺寸不同）
+watch(() => pageData?.printing, () => nextTick(syncInputWidth));
 // 挂载后初始化
 onMounted(() => nextTick(syncInputWidth));
 

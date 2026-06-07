@@ -28,6 +28,7 @@ const rightList: RenderListItem[] = [
   { key: 'int', label: '智力', hint: '灵感 INT' },
   { key: 'luc', label: '幸运', hint: 'LUK' },
 ];
+const allList: RenderListItem[] = [...leftList, ...rightList];
 
 const sum = computed(() => {
   if (!pc) return 0;
@@ -42,14 +43,6 @@ function updateAttr(key: COCAttributesKey, value: string) {
   if (!pc) return;
   pc.value.attributes[key] = value ? +value : undefined;
 }
-
-import { useIsMobileLayout } from '../hooks/usePlatform';
-
-const isMobile = useIsMobileLayout();
-
-const allList = [...leftList, ...rightList];
-
-
 </script>
 
 <template>
@@ -58,49 +51,46 @@ const allList = [...leftList, ...rightList];
     v-if="pc"
   >
     <div class="info-section">
-      <template v-if="isMobile">
-        <div class="attributes-mobile-wrap">
-          <div class="attributes-grid">
-            <WritableRow
-              v-for="item in allList"
-              :key="item.key"
-              :label="item.label"
-              :modelValue="`${pc?.attributes[item.key] ?? ''}`"
-              @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
-            />
-          </div>
-          <div
-            v-if="sum"
-            class="ponits-sum ponits-sum--mobile"
-          >总点数 {{ sum }}</div>
+      <!-- 竖屏：3栏网格布局 -->
+      <div class="attributes-grid">
+        <WritableRow
+          v-for="item in allList"
+          :key="item.key"
+          :label="item.label"
+          :modelValue="`${pc?.attributes[item.key] ?? ''}`"
+          @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
+        />
+      </div>
+      <!-- 横屏：左右两列布局 -->
+      <div class="attributes-group attributes-group--left">
+        <WritableRow
+          v-for="item in leftList"
+          :key="item.key"
+          :label="item.label"
+          :modelValue="`${pc?.attributes[item.key] ?? ''}`"
+          @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
+        />
+      </div>
+      <div class="divider"></div>
+      <div class="attributes-group attributes-group--right">
+        <WritableRow
+          v-for="item in rightList"
+          :key="item.key"
+          :label="item.label"
+          :modelValue="`${pc?.attributes[item.key] ?? ''}`"
+          @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
+        />
+        <div class="attributes-actions">
+          <template v-if="sum">
+            <div class="ponits-sum">总点数 {{ sum }}</div>
+          </template>
         </div>
-      </template>
-      <template v-else>
-        <div class="attributes-group">
-          <WritableRow
-            v-for="item in leftList"
-            :key="item.key"
-            :label="item.label"
-            :modelValue="`${pc?.attributes[item.key] ?? ''}`"
-            @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
-          />
-        </div>
-        <div class="divider"></div>
-        <div class="attributes-group">
-          <WritableRow
-            v-for="item in rightList"
-            :key="item.key"
-            :label="item.label"
-            :modelValue="`${pc?.attributes[item.key] ?? ''}`"
-            @update:modelValue="(newValue) => updateAttr(item.key, newValue)"
-          />
-          <div class="attributes-actions">
-            <template v-if="sum">
-              <div class="ponits-sum">总点数 {{ sum }}</div>
-            </template>
-          </div>
-        </div>
-      </template>
+      </div>
+      <!-- 竖屏：总点数（在网格下方） -->
+      <div
+        v-if="sum"
+        class="ponits-sum ponits-sum--mobile"
+      >总点数 {{ sum }}</div>
     </div>
   </PaperSection>
 </template>
@@ -110,7 +100,15 @@ const allList = [...leftList, ...rightList];
   display: flex;
   padding: 0.4em 0.6em 0.6em;
   gap: 0.8em;
+  flex-wrap: wrap;
 }
+
+/* 竖屏3栏网格——默认隐藏，竖屏时显示 */
+.attributes-grid {
+  display: none;
+}
+
+/* 横屏左右两列——默认显示 */
 .divider {
   border-right: 1px solid var(--color-border);
 }
@@ -128,12 +126,6 @@ const allList = [...leftList, ...rightList];
     width: 3em !important;
   }
 }
-.dice-hint {
-  align-self: flex-start;
-  font-size: 0.8em;
-  margin: 0 0 -0.3em 0.6em;
-}
-
 .attributes-actions {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -154,6 +146,7 @@ const allList = [...leftList, ...rightList];
   --color-button-text: #4b4e53;
   --color-button-text-hover: #2e2e2e;
 }
+
 .ponits-sum {
   text-align: center;
   opacity: 0.8;
@@ -162,27 +155,13 @@ const allList = [...leftList, ...rightList];
   transform-origin: center bottom;
 }
 .ponits-sum--mobile {
-  margin-top: 0.4em;
+  display: none;
 }
 
-.attributes-mobile-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.attributes-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  gap: 0.3em 0.4em;
-  padding: 0.4em 0.6em;
-
-  & :deep(.input) {
-    width: 3.6em !important;
-    text-align: center;
-  }
+.dice-hint {
+  align-self: flex-start;
+  font-size: 0.8em;
+  margin: 0 0 -0.3em 0.6em;
 }
 
 /* when print */
@@ -202,8 +181,44 @@ const allList = [...leftList, ...rightList];
 <style lang="scss">
 @media screen and (orientation: portrait) {
   .papers-editing {
-    .attributes-group .input {
-      width: 3.6em !important;
+    /* 竖屏：显示3栏网格，隐藏横屏两列 */
+    .attributes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.3em 0.4em;
+      padding: 0.4em 0.6em;
+      width: 100%;
+
+      .writable-row {
+        justify-self: center;
+      }
+
+      .input {
+        width: 3.6em !important;
+        text-align: center;
+      }
+    }
+    .attributes-group--left,
+    .attributes-group--right,
+    .divider {
+      display: none;
+    }
+    .ponits-sum--mobile {
+      display: block;
+      width: 100%;
+      text-align: center;
+      margin-top: 0;
+      opacity: 0.8;
+      line-height: 1;
+      transform: scale(0.88);
+      transform-origin: center bottom;
+    }
+    .attributes-actions {
+      display: none;
+    }
+    .info-section {
+      flex-direction: column;
+      align-items: center;
     }
   }
 }
