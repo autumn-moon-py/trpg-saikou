@@ -16,19 +16,19 @@ const pc = usePC();
         <WritableArea
           label="魔法物品与典籍"
           :rows="2"
-          :maxlength="18 * 2 - 8"
+          :maxlength="28 * 2"
           v-model="pc.assets.magicItems"
         />
         <WritableArea
           label="法术"
           :rows="2"
-          :maxlength="18 * 2 - 3"
+          :maxlength="28 * 2"
           v-model="pc.assets.magics"
         />
         <WritableArea
           label="第三类接触"
           :rows="3"
-          :maxlength="18 * 3 - 6"
+          :maxlength="28 * 3"
         v-model="pc.assets.touches"
       />
     </div>

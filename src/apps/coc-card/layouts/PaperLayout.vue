@@ -48,7 +48,7 @@ withDefaults(defineProps<Props>(), {});
 }
 
 @media screen and (orientation: portrait) {
-  .paper-content {
+  .papers-editing .paper-content {
     padding: 1.5em 0.9em;
   }
 }

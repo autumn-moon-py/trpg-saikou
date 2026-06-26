@@ -48,7 +48,7 @@ const pc = usePC();
 }
 
 @media screen and (orientation: portrait) {
-  .san-status-section :deep(.label) {
+  .papers-editing .san-status-section :deep(.label) {
     font-size: 0.78em;
   }
 }

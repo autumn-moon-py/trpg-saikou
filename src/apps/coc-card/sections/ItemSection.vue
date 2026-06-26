@@ -16,7 +16,7 @@ const pc = usePC();
       <WritableArea
         label=""
         :rows="7"
-        :maxlength="18 * 7"
+        :maxlength="30 * 7"
         v-model="pc.assets.items"
       />
     </div>

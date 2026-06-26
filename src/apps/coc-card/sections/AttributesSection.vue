@@ -124,6 +124,7 @@ function updateAttr(key: COCAttributesKey, value: string) {
   }
   & :deep(.input) {
     width: 3em !important;
+    text-align: center;
   }
 }
 .attributes-actions {
@@ -168,6 +169,9 @@ function updateAttr(key: COCAttributesKey, value: string) {
 @mixin printing-styles {
   .web-only {
     display: none;
+  }
+  .info-section {
+    flex-wrap: nowrap;
   }
 }
 .printing-image {

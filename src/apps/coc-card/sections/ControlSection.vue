@@ -29,7 +29,7 @@ import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
 import useAppLs from '../hooks/useAppLs';
 import CardManager from '../components/CardManager.vue';
-import { shareText } from '@/utils/share';
+import { shareText, writeClipboard, readClipboard } from '@/utils/share';
 import { useIsMobileLayout } from '../hooks/usePlatform';
 
 import type { COCCardViewData } from '../types/viewData';
@@ -176,12 +176,18 @@ function actResetCard() {
 function actOpenInOutModal() {
   inOutModalVisible.value = true;
 }
-function copyOutData() {
-  copy(outData.value);
-  ElMessage.success('已复制到剪贴板');
+async function copyOutData() {
+  const ok = await writeClipboard(outData.value);
+  if (ok) {
+    ElMessage.success('已复制到剪贴板');
+  } else {
+    // fallback 到 copy-to-clipboard 库
+    copy(outData.value);
+    ElMessage.success('已复制到剪贴板');
+  }
 }
 async function shareOutData() {
-  copy(outData.value);
+  await writeClipboard(outData.value);
   await shareText(outData.value);
 }
 function applyInData() {
@@ -223,16 +229,12 @@ function applyInData() {
 }
 
 async function readFromClipboard() {
-  try {
-    const text = await navigator.clipboard.readText();
-    if (text) {
-      inData.value = text;
-      ElMessage.success('已读取剪贴板内容');
-    } else {
-      ElMessage.info('剪贴板为空');
-    }
-  } catch {
-    ElMessage.error('无法读取剪贴板，请检查权限');
+  const text = await readClipboard();
+  if (text) {
+    inData.value = text;
+    ElMessage.success('已读取剪贴板内容');
+  } else {
+    ElMessage.info('无法自动读取剪贴板，请长按输入框手动粘贴');
   }
 }
 
@@ -565,38 +567,43 @@ defineExpose({ inData, applyInData, copyOutData });
 }
 
 @media screen and (orientation: portrait) {
-  .main-controls {
+  .papers-editing .main-controls {
     padding-left: 6px;
     padding-right: 6px;
   }
-  .reward-modal-body {
-    grid-template-areas:
-      'text'
-      'qr1'
-      'qr2';
-    grid-template-columns: 1fr;
-  }
-  .in-out-modal-panel:first-child {
-    flex: 0 0 25%;
-  }
-  .in-out-modal-panel {
-    justify-content: center;
-  }
-  .in-out-modal-body .in-out-modal-actions {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .in-out-modal-panel:first-child .in-out-modal-actions :deep(.el-button:last-child) {
-    margin-right: 10px;
-  }
-  .in-out-modal-panel:last-child .in-out-modal-actions :deep(.el-button:last-child) {
-    margin-right: 7px;
-  }
-  .in-out-modal-body :deep(.el-textarea__inner) {
-    height: 100px !important;
-    min-height: unset !important;
+}
+</style>
+
+<!-- 弹窗竖屏样式：ControlDialog 使用 append-to-body，DOM 挂在 <body> 下，
+     不在 .papers-editing 内，必须用非 scoped style + .coc-card-control-dialog 前缀 -->
+<style lang="scss">
+@media screen and (orientation: portrait) {
+  .coc-card-control-dialog {
+    .in-out-modal-body {
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .in-out-modal-panel {
+      min-width: 0;
+      justify-content: center;
+    }
+    .in-out-modal-actions {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .el-textarea__inner {
+      height: 120px !important;
+      min-height: unset !important;
+    }
+    .reward-modal-body {
+      grid-template-areas:
+        'text'
+        'qr1'
+        'qr2';
+      grid-template-columns: 1fr;
+    }
   }
 }
 </style>

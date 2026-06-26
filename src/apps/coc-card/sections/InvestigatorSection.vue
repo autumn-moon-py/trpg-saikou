@@ -181,6 +181,7 @@ function onSelectJob(jobName: string) {
     width: 100% !important;
     flex: 1 0 0;
     min-width: 0;
+    text-align: center;
   }
   & :deep(.label-title) {
     white-space: nowrap;
@@ -276,9 +277,9 @@ function onSelectJob(jobName: string) {
 @media screen and (orientation: portrait) {
   .papers-editing {
     .job-selector {
-      position: absolute;
-      left: 0;
-      right: 0;
+      position: fixed;
+      left: 5vw;
+      right: 5vw;
       width: auto;
       max-height: 50vh;
       overflow: auto;
