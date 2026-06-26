@@ -221,7 +221,7 @@ function applyWeapon(index: number, weapon?: Weapon) {
 }
 
 @media screen and (orientation: portrait) {
-  .weapons-container {
+  .papers-editing .weapons-container {
     grid-template-columns: 1fr;
   }
 }

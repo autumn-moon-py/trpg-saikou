@@ -16,13 +16,13 @@ const pc = usePC();
       <WritableArea
         label="货币"
         :rows="1"
-        :maxlength="15"
+        :maxlength="30"
         v-model="pc.assets.currency"
       />
       <WritableArea
         label="资产"
         :rows="6"
-        :maxlength="17 * 6 - 2"
+        :maxlength="28 * 6"
         v-model="pc.assets.assets"
       />
     </div>

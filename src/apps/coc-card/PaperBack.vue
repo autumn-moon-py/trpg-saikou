@@ -38,53 +38,11 @@ defineProps<Props>();
   gap: 1em;
   align-items: stretch;
 }
-.inspiration-row {
-  flex: 1 0 0;
-  display: flex;
-  align-items: flex-end;
-  color: #888;
-  line-height: 1;
-}
-.inspiration-item {
-  white-space: nowrap;
-  overflow: visible;
-  width: 0px;
-  transform: scale(0.8);
-  transform-origin: left bottom;
-}
-.special-thanks {
-  flex: 3 0 0;
-}
-.inspiration {
-  flex: 3 0 0;
-  text-align: right;
-  transform-origin: center bottom;
-}
-.copyright {
-  flex: 4 0 0;
-  text-align: right;
-  transform-origin: right bottom;
-}
 </style>
 
 <style lang="scss">
 @media screen and (orientation: portrait) {
   .papers-editing {
-    .inspiration-row {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      align-items: center;
-      /* align-items: flex-start; */
-
-      .inspiration-item {
-        flex: 1 1 0;
-        width: 125%;
-        transform-origin: center bottom;
-        text-align: center;
-      }
-    }
-
     .section-row {
       flex-wrap: wrap;
 

@@ -484,12 +484,12 @@ function getTotal(points: SkillPoint, init: number) {
 }
 
 @media screen and (orientation: portrait) {
-  .skill-table {
+  .papers-editing .skill-table {
     .col-base {
       display: none;
     }
   }
-  .mobile-init-hint {
+  .papers-editing .mobile-init-hint {
     display: inline;
     color: #999;
   }

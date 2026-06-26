@@ -197,21 +197,21 @@ function cancelRename() {
 
 /* ====== 移动端 (≤1024px) ====== */
 @media screen and (orientation: portrait) {
-  .card-manager {
+  .papers-editing .card-manager {
     padding: 2px 8px;
   }
 
-  .card-tabs { gap: 6px; }
+  .papers-editing .card-tabs { gap: 6px; }
 
-  .card-tab {
+  .papers-editing .card-tab {
     padding: 6px 12px;
     min-height: 36px;
     font-size: 14px;
   }
-  .card-tab-name { max-width: 64px; }
-  .card-tab-delete-mobile { display: none; }
+  .papers-editing .card-tab-name { max-width: 64px; }
+  .papers-editing .card-tab-delete-mobile { display: none; }
 
-  .card-tab-new { padding: 6px 12px; }
-  .card-tab-new-text { display: inline; }
+  .papers-editing .card-tab-new { padding: 6px 12px; }
+  .papers-editing .card-tab-new-text { display: inline; }
 }
 </style>
