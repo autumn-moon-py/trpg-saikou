@@ -236,7 +236,7 @@ function getTotal(points: SkillPoint, init: number) {
     <tbody>
       <tr
         v-for="(row, index) in tableData"
-        :key="row.skillName"
+        :key="row.key"
       >
         <td
           v-if="row.isGroupStart"

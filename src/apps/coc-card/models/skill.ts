@@ -127,6 +127,27 @@ export function getSkillInit (
     return initMap.get( name ) ?? 0
 }
 
+/** 补齐当前规则下所有分组技能的显示槽位，保留卡片中已有的子技能名 */
+export function ensureShowingChildSkills (
+    viewData: COCCardViewData,
+    rules: RuleSet = DEFAULT_RULES,
+)
+{
+    const map = viewData.showingChildSkills ?? {}
+    getSkills( rules ).forEach( ( skill ) =>
+    {
+        if ( !skill.group ) return
+        const slots = map[ skill.name ]
+        if ( !slots )
+        {
+            map[ skill.name ] = [ ...skill.group.show ]
+            return
+        }
+        while ( slots.length < skill.group.show.length ) slots.push( '' )
+    } )
+    viewData.showingChildSkills = map
+}
+
 export function resetShowingChildSkills (
     viewData?: COCCardViewData,
     rules: RuleSet = DEFAULT_RULES,
