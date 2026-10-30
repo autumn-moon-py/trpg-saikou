@@ -10,10 +10,10 @@ import type { Weapon } from '../types/weapon';
 import type { FlattenTreeData } from '../types/flattenTree';
 
 import { createWeapon, weapons, weaponGroups, weaponGroupOrders } from '../models/weapon';
-import { skillGroups } from '../models/skill';
+import { getSkillGroups } from '../models/skill';
 
 import { useToggle } from '@/utils/ui';
-import { usePC } from '../hooks/useProviders';
+import { usePC, useRules } from '../hooks/useProviders';
 // @ts-ignore
 import vClickOutside from '@/directives/clickOutside';
 
@@ -39,6 +39,7 @@ interface BattleSkill {
 }
 
 const pc = usePC();
+const rules = useRules();
 
 function getTDClass(row: number, col: number) {
   const rowBase = row % 2 ? 0 : 1;
@@ -79,7 +80,8 @@ const weapon = computed(() => props.weapon || createWeapon());
 const point = computed(() => getPoint(weapon.value.skill));
 
 const battleSkills = computed<BattleSkill[]>(() => {
-  const skills = skillGroups
+  const groups = getSkillGroups(rules?.value);
+  const skills = groups
     .find(({ groupName }) => groupName === '战斗')!
     .groupSkills.filter(({ name }) => name !== '闪避' && name !== '武术');
   return skills.reduce<BattleSkill[]>((result, skill) => {
@@ -153,6 +155,12 @@ function onSelectWeapon(name: string) {
   });
   hideWeaponSeletor();
 }
+
+// 手动输入武器名时视为自定义武器，关闭选择浮层
+function onNameInput(val: string) {
+  updatePCWeapon({ name: val });
+  if (val) hideWeaponSeletor();
+}
 </script>
 
 <template>
@@ -166,13 +174,13 @@ function onSelectWeapon(name: string) {
       <div
         class="weapon-td-name"
         v-click-outside="hideWeaponSeletor"
-        @click="() => !props.readonly && showWeaponSeletor()"
+        @click="() => !props.readonly && !weapon.name && showWeaponSeletor()"
       >
         <BaseTdInput
           :value="weapon.name"
           :readonly="props.readonly"
-          @input="(val) => updatePCWeapon({ name: val })"
-          @focus="() => !props.readonly && showWeaponSeletor()"
+          @input="onNameInput"
+          @focus="() => !props.readonly && !weapon.name && showWeaponSeletor()"
         />
         <Transition name="slide-down">
           <div

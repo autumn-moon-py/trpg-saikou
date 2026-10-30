@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Plus, Delete, CopyDocument } from '@element-plus/icons-vue';
+import { Delete } from '@element-plus/icons-vue';
 import { ElMessageBox } from 'element-plus';
 
 import { usePageData } from '../hooks/useProviders';
@@ -14,10 +14,8 @@ interface Props {
 defineProps<Props>();
 
 interface Emits {
-  (event: 'create-card'): void;
   (event: 'switch-card', id: string): void;
   (event: 'delete-card', id: string): void;
-  (event: 'duplicate-card', id: string): void;
   (event: 'rename-card', id: string, newName: string): void;
 }
 const emit = defineEmits<Emits>();
@@ -66,12 +64,6 @@ function cancelRename() {
 <template>
   <div class="card-manager" :class="{ 'printing-image': pageData?.printing }">
     <div class="card-tabs">
-      <!-- 新建按钮 —— 居左 -->
-      <div class="card-tab card-tab-new" @click="emit('create-card')">
-        <el-icon :size="14"><Plus /></el-icon>
-        <span class="card-tab-new-text">新建</span>
-      </div>
-
       <div
         v-for="meta in metaList"
         :key="meta.id"
@@ -92,10 +84,6 @@ function cancelRename() {
         />
         <span v-else class="card-tab-name">{{ displayName(meta) }}</span>
 
-        <!-- 复制按钮 -->
-        <span class="card-tab-btn" @click.stop="emit('duplicate-card', meta.id)" title="复制">
-          <el-icon :size="10"><CopyDocument /></el-icon>
-        </span>
         <!-- 删除按钮 -->
         <span
           class="card-tab-btn card-tab-delete"
@@ -116,7 +104,6 @@ function cancelRename() {
   align-items: center;
   justify-content: flex-start;
   padding: 4px 12px;
-  border-bottom: 1px solid var(--color-border);
   gap: 12px;
 }
 
@@ -185,33 +172,51 @@ function cancelRename() {
 }
 .card-tab-delete:hover { opacity: 1; color: #e04040; }
 
-.card-tab-new {
-  padding: 4px 8px;
-  flex-shrink: 0;
-}
-.card-tab-new-text { display: none; }
 
 /* ====== 打印隐藏 ====== */
 .printing-image { display: none; }
 @media print { .card-manager { display: none; } }
 
-/* ====== 移动端 (≤1024px) ====== */
+/* ====== 竖屏：两列布局 ====== */
 @media screen and (orientation: portrait) {
-  .papers-editing .card-manager {
+  .card-manager {
     padding: 2px 8px;
+    overflow: visible;
+    width: 100%;
   }
 
-  .papers-editing .card-tabs { gap: 6px; }
+  .card-tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow: visible;
+    width: 100%;
+  }
 
-  .papers-editing .card-tab {
+  .card-tab {
     padding: 6px 12px;
     min-height: 36px;
     font-size: 14px;
+    width: calc(50% - 3px);
+    box-sizing: border-box;
   }
-  .papers-editing .card-tab-name { max-width: 64px; }
-  .papers-editing .card-tab-delete-mobile { display: none; }
 
-  .papers-editing .card-tab-new { padding: 6px 12px; }
-  .papers-editing .card-tab-new-text { display: inline; }
+  .card-tab-name {
+    max-width: none;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-tab-delete-mobile { display: none; }
+}
+</style>
+
+<style lang="scss">
+/* 弹窗竖屏适配：ControlDialog 使用 append-to-body，
+   el-dialog__body 不在 CardManager scoped 范围内 */
+@media screen and (orientation: portrait) {
+  .coc-card-control-dialog .el-dialog__body {
+    overflow-y: auto;
+    max-height: 60vh;
+  }
 }
 </style>

@@ -3,28 +3,29 @@ import { computed, ref } from 'vue';
 import { Upload } from '@element-plus/icons-vue';
 
 // models
-import formattedJobs, { getProPointByJobAndAttrs } from '../models/job';
+import { getJob, getJobGroups, getProPointByJobAndAttrs } from '../models/job';
 import { getJobSuggestion } from '../models/suggestion';
 
-import { usePC } from '../hooks/useProviders';
+import { usePC, useRules } from '../hooks/useProviders';
 
 interface Props {
   label?: string;
 }
 defineProps<Props>();
 
-const { jobGroups, jobs } = formattedJobs;
 const pc = usePC();
+const rules = useRules();
+const jobGroups = computed(() => getJobGroups(rules?.value));
 
 const collapseActiveNames = ref([]);
 
 const list = computed(() => {
-  return jobGroups.map((group) => {
+  return jobGroups.value.map((group) => {
     return {
       name: group.name,
       items: group.jobs.map((jobInfo) => {
-        const job = jobs.get(jobInfo.name)!;
-        const suggestion = getJobSuggestion(job.name);
+        const job = getJob(jobInfo.name, rules?.value)!;
+        const suggestion = getJobSuggestion(job.name, rules?.value);
 
         const skillText =
           suggestion.multiSkillTexts.map((t) => `${t}、`).join('') + suggestion.text;
@@ -32,6 +33,7 @@ const list = computed(() => {
         const { point: pointValue, text: pointText } = getProPointByJobAndAttrs(
           job.name,
           pc?.value.attributes,
+          rules?.value,
         );
 
         return {
@@ -72,7 +74,9 @@ function applyJob(jobName: string) {
           >
             <div class="job-card-header">
               <span>{{ item.name }}</span>
-              <span>信用评级：{{ item.wealth[0] }}~{{ item.wealth[1] }}</span>
+              <span>
+                信用评级：{{ item.wealth[0] === item.wealth[1] ? item.wealth[0] : `${item.wealth[0]}~${item.wealth[1]}` }}
+              </span>
               <a
                 class="job-card-action-use"
                 @click="() => applyJob(item.name)"

@@ -5,7 +5,7 @@ import PaperSection from '../components/PaperSection.vue';
 import SkillTable from '../components/SkillTable.vue';
 import WritableRow from '../components/WritableRow.vue';
 // models
-import { skillGroups } from '../models/skill';
+import { getSkillGroups } from '../models/skill';
 import { getProPointByJobAndAttrs } from '../models/job';
 
 import {
@@ -13,6 +13,7 @@ import {
   useSuggestion,
   usePageData,
   useViewData,
+  useRules,
 } from '../hooks/useProviders';
 
 const skillTableSeparateIndex = 6;
@@ -21,6 +22,8 @@ const pc = usePC();
 const suggestion = useSuggestion();
 const pageData = usePageData();
 const viewData = useViewData();
+const rules = useRules();
+const skillGroupsData = computed(() => getSkillGroups(rules?.value));
 
 function getValues() {
   const { pro, interest } = pc?.value.pointValues || {};
@@ -80,14 +83,21 @@ watch(
     attributes: pc?.value.attributes,
   }),
   ({ job: jobName, attributes }) => {
-    const { point: newPro } = getProPointByJobAndAttrs(jobName, attributes);
+    const { point: newPro } = getProPointByJobAndAttrs(jobName, attributes, rules?.value);
     const customPro = pc?.value.pointValues.pro;
     if (newPro) {
       updateLocalValue('pro', customPro ?? `${newPro > 0 ? newPro : ''}`);
     }
 
+    const edu = attributes?.edu;
     const int = attributes?.int;
-    const newInterest = int ? `${int * 2}` : '';
+    const newInterest = rules?.value.revisedInterest
+      ? edu && int
+        ? `${edu + int}`
+        : ''
+      : int
+        ? `${int * 2}`
+        : '';
     const customInterest = pc?.value.pointValues.interest;
     if (newInterest) {
       updateLocalValue('interest', customInterest ?? newInterest);
@@ -194,11 +204,11 @@ watch(
     </template>
     <div class="skill-section-body">
       <SkillTable
-        :data="skillGroups.slice(0, skillTableSeparateIndex)"
+        :data="skillGroupsData.slice(0, skillTableSeparateIndex)"
         :suggestion="suggestion"
       />
       <div class="divider"></div>
-      <SkillTable :data="skillGroups.slice(skillTableSeparateIndex)" />
+      <SkillTable :data="skillGroupsData.slice(skillTableSeparateIndex)" />
     </div>
   </PaperSection>
 </template>

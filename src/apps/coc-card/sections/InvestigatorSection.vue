@@ -7,18 +7,19 @@ import WritableRow from '../components/WritableRow.vue';
 import FlattenTree from '../components/FlattenTree.vue';
 
 // models
-import formattedJobs from '../models/job';
+import { getJobGroups } from '../models/job';
 
 // @ts-ignore
 import vClickOutside from '@/directives/clickOutside';
-import { usePC, usePageData } from '../hooks/useProviders';
+import { usePC, usePageData, useRules } from '../hooks/useProviders';
 
 import type { FlattenTreeData } from '../types/flattenTree';
 
 const pc = usePC();
 const pageData = usePageData();
+const rules = useRules();
 
-const { jobGroups } = formattedJobs;
+const jobGroups = computed(() => getJobGroups(rules?.value));
 
 const isJobSeletorShowing = ref(false);
 const jobSearchInput = ref('');
@@ -42,7 +43,7 @@ const isMobile = useIsMobileLayout();
 
 const jobTree = computed(() => {
   const filterText = jobSearchInput.value;
-  const filteredData = jobGroups.reduce((result, jobGroup) => {
+  const filteredData = jobGroups.value.reduce((result, jobGroup) => {
     const { name: groupName, pinyin: groupPinyin, jobs } = jobGroup;
     const label = isMobile.value ? groupName.replace(/\//g, ' ') : groupName;
     const filteredChildren = jobs.reduce(

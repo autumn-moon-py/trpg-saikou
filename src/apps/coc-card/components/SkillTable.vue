@@ -4,8 +4,8 @@ import type { ChildSkill } from '../types/skill';
 import type { SkillGroup, SkillGroups } from '../types/formattedSkill';
 import type { COCPCSkill, SkillPoint } from '../types/character';
 import type { Suggestion } from '../types/suggestion';
-import { dynamicInitFormulas, getSkillInit } from '../models/skill';
-import { usePC, useViewData, usePageData } from '../hooks/useProviders';
+import { getSkillInit } from '../models/skill';
+import { usePC, useViewData, usePageData, useRules } from '../hooks/useProviders';
 
 import SkillTdLabel from './SkillTdLabel.vue';
 import SkillTdInput from './SkillTdInput.vue';
@@ -19,6 +19,7 @@ const props = defineProps<Props>();
 const pc = usePC();
 const viewData = useViewData();
 const pageData = usePageData();
+const rules = useRules();
 
 interface TableRowData {
   // group info (optional)
@@ -46,24 +47,27 @@ interface TableRowData {
   };
 }
 
-function getTableData(data: SkillGroups, suggestion?: Suggestion) {
+function getTableData(data: SkillGroups, suggestion?: Suggestion, ruleSet = rules?.value) {
   const tableData = data.reduce<TableRowData[]>((result: any, skillGroup: SkillGroup) => {
     const rows: TableRowData[] = skillGroup.groupSkills.reduce<TableRowData[]>(
       (rows, skill, index) => {
         const isSpecialGroup = skillGroup.groupName === '特殊';
-        let init = skill.init;
-        if (pc && skill.name in dynamicInitFormulas) {
-          init = dynamicInitFormulas[skill.name](pc.value);
-        }
+        const init = getSkillInit(skill.name, pc?.value, ruleSet, pc?.value.job);
         const isGroupStart = isSpecialGroup || index === 0;
         // simple skill row
         const skillKey = skill.name;
         const skillPoint = findSkillPoints(skillKey);
         const points = skillPoint?.[1] || {};
-        // 信用评级范围
+        // 信用评级：修订规则下为固定值
         const [w0, w1] = suggestion?.wealth ?? [-1, -1];
         const hasJob = !!(pc && pc.value.job);
-        const comments = skillKey === '信用评级' && hasJob && w0 >= 0 && w1 >= 0 ? `(${w0}~${w1})` : '';
+        const isFixed = !!ruleSet?.revisedOccupations && w0 >= 0 && w0 === w1;
+        const comments =
+          skillKey === '信用评级' && hasJob && w0 >= 0 && w1 >= 0
+            ? isFixed
+              ? `(固定 ${w0})`
+              : `(${w0}~${w1})`
+            : '';
         const total = getTotal(points, init);
         let rowData: TableRowData = {
           key: skill.name,
@@ -98,13 +102,14 @@ function getTableData(data: SkillGroups, suggestion?: Suggestion) {
             const childSkillName =
               viewData?.showingChildSkills[skill.name]?.[childIndex] ?? placeName;
             const childSkill = skill.group?.skills.find(({ name }) => name === childSkillName);
-            let init = childSkill?.init ?? rowData.init;
+            const childInit = getSkillInit(childSkillName, pc?.value, ruleSet, pc?.value.job);
+            let init = childInit || childSkill?.init || rowData.init;
             const skillKey: COCPCSkill = [skill.name, childSkillName, childIndex];
             const skillPoint = findSkillPoints(skillKey);
             const points = skillPoint?.[1] || {};
             // 其它组：根据用户填写的技能名查找真实基础值
             if (pc && !skill.name) {
-              init = getSkillInit(childSkillName, pc.value);
+              init = getSkillInit(childSkillName, pc.value, ruleSet, pc.value.job);
             }
             const total = getTotal(points, init);
             return {
@@ -137,7 +142,7 @@ function getTableData(data: SkillGroups, suggestion?: Suggestion) {
   return tableData;
 }
 
-const tableData = computed(() => getTableData(props.data, props.suggestion));
+const tableData = computed(() => getTableData(props.data, props.suggestion, rules?.value));
 
 function findSkillPoints(skillInfo: COCPCSkill) {
   if (!pc) return;

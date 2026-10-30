@@ -22,7 +22,7 @@ export const skills: Skill[] = [
         name: '社交',
         init: 0,
         group: {
-            show: [ '' ],
+            show: [ '', '' ],
             skills: [
                 { name: '取悦', init: 15 },
                 { name: '话术', init: 5 },
@@ -65,7 +65,7 @@ export const skills: Skill[] = [
         name: '外语',
         init: 1,
         group: {
-            show: [ '' ],
+            show: [ '', '' ],
             skills: [
                 { name: '汉语' },
                 { name: '英语' },
@@ -101,10 +101,6 @@ export const skills: Skill[] = [
     {
         name: '追踪',
         init: 10
-    },
-    {
-        name: '读唇',
-        init: 1
     },
     {
         name: '人类学',
@@ -407,7 +403,7 @@ export const skills: Skill[] = [
         name: '格斗',
         init: 0,
         group: {
-            show: [ '斗殴', '' ],
+            show: [ '斗殴', '', '' ],
             skills: [
                 {
                     name: '斗殴',
@@ -448,7 +444,7 @@ export const skills: Skill[] = [
         init: 0,
         name: '射击',
         group: {
-            show: [ '手枪', '' ],
+            show: [ '手枪', '', '' ],
             skills: [
                 {
                     name: '手枪',
@@ -490,7 +486,7 @@ export const skills: Skill[] = [
         name: '武术',
         init: 15,
         group: {
-            show: [ '', '' ],
+            show: [ '', '', '' ],
             skills: [
                 { name: '合气道', init: 15 },
                 { name: '居合', init: 15 },
@@ -571,10 +567,6 @@ export const skills: Skill[] = [
     //     init: 5,
     //     intro: '与灵体、精怪、鬼神等超自然存在进行沟通与交涉的能力，可能涉及降灵术、灵视、灵媒等技术。',
     //   },
-    {
-        name: '风水',
-        init: 15
-    },
     {
         name: '稽古',
         init: 5,

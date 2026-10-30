@@ -3,9 +3,14 @@ import type { SkillGroupName } from '../types/skillGroup'
 import type { SkillGroups } from '../types/formattedSkill'
 import type { COCPlayerCharacter, SkillPoint } from '../types/character'
 import type { COCCardViewData } from '../types/viewData'
+import type { RuleSet } from '../types/rules'
 
 import { skills, skillNameAlias } from '../constants/skill'
+import { revisedSkills, revisedSkillNameAlias } from '../constants/skillRevised'
 import { skillGroups as groups, skillGroupOrder } from '../constants/skillGroup'
+import { revisedSkillGroups, revisedSkillGroupOrder } from '../constants/skillGroupRevised'
+import { getJob } from './job'
+import { DEFAULT_RULES } from '../types/rules'
 
 function getFormattedSkillGroups ( {
     skills,
@@ -44,53 +49,100 @@ export const skillGroups = getFormattedSkillGroups( {
     groupOrder: skillGroupOrder,
 } )
 
+const revisedSkillGroupsFormatted = getFormattedSkillGroups( {
+    skills: revisedSkills,
+    groups: revisedSkillGroups,
+    groupOrder: revisedSkillGroupOrder,
+} )
+
+/** 按规则集获取技能分组 */
+export function getSkillGroups ( rules: RuleSet = DEFAULT_RULES ): SkillGroups
+{
+    return rules.revisedSkills ? revisedSkillGroupsFormatted : skillGroups
+}
+
+/** 按规则集获取技能列表 */
+export function getSkills ( rules: RuleSet = DEFAULT_RULES ): Skill[]
+{
+    return rules.revisedSkills ? revisedSkills : skills
+}
+
 export const dynamicInitFormulas: Record<string, ( pc: COCPlayerCharacter ) => number> = {
     母语: ( pc ) => pc.attributes.edu || 0,
     闪避: ( pc ) => Math.floor( ( pc.attributes.dex || 0 ) / 2 ),
+    安抚: ( pc ) => Math.floor( ( pc.attributes.app || 0 ) / 5 ),
 }
 
 /** 按技能名查找静态基础值（含别名匹配） */
-const skillInitMap = new Map<string, number>()
-skills.forEach( ( skill ) =>
+function buildSkillInitMap ( skillList: Skill[], aliases: Record<string, string[]> )
 {
-    if ( skill.init ) skillInitMap.set( skill.name, skill.init )
-    // 别名
-    const aliases = skillNameAlias[ skill.name ]
-    if ( aliases )
+    const map = new Map<string, number>()
+    skillList.forEach( ( skill ) =>
     {
-        aliases.forEach( ( alias ) =>
+        if ( skill.init ) map.set( skill.name, skill.init )
+        // 别名
+        const skillAliases = aliases[ skill.name ]
+        if ( skillAliases )
         {
-            if ( skill.init ) skillInitMap.set( alias, skill.init )
-        } )
-    }
-    // 子技能
-    if ( skill.group?.skills )
-    {
-        skill.group.skills.forEach( ( child ) =>
+            skillAliases.forEach( ( alias ) =>
+            {
+                if ( skill.init ) map.set( alias, skill.init )
+            } )
+        }
+        // 子技能
+        if ( skill.group?.skills )
         {
-            if ( child.init ) skillInitMap.set( child.name, child.init )
-        } )
-    }
-} )
+            skill.group.skills.forEach( ( child ) =>
+            {
+                if ( child.init ) map.set( child.name, child.init )
+            } )
+        }
+    } )
+    return map
+}
+
+const skillInitMap = buildSkillInitMap( skills, skillNameAlias )
+const revisedSkillInitMap = buildSkillInitMap( revisedSkills, revisedSkillNameAlias )
 
 /** 根据技能名获取基础值，优先动态公式，其次静态定义，兜底 0 */
-export function getSkillInit ( name: string, pc?: COCPlayerCharacter ): number
+export function getSkillInit (
+    name: string,
+    pc?: COCPlayerCharacter,
+    rules: RuleSet = DEFAULT_RULES,
+    jobName?: string,
+): number
 {
     if ( !name ) return 0
+    // 修订规则下，信用评级基础值取职业固定值
+    if ( rules.revisedOccupations && name === '信用评级' && jobName )
+    {
+        const job = getJob( jobName, rules )
+        if ( job ) return job.wealth[ 0 ]
+    }
     if ( pc && name in dynamicInitFormulas )
     {
         return dynamicInitFormulas[ name ]( pc )
     }
-    return skillInitMap.get( name ) ?? 0
+    const initMap = rules.revisedSkills ? revisedSkillInitMap : skillInitMap
+    return initMap.get( name ) ?? 0
 }
 
-export function resetShowingChildSkills ( viewData?: COCCardViewData )
+export function resetShowingChildSkills (
+    viewData?: COCCardViewData,
+    rules: RuleSet = DEFAULT_RULES,
+)
 {
+    // 同时保留两套分组的键，避免切换规则时旧卡片子技能丢失
+    const primary = rules.revisedSkills ? revisedSkills : skills
+    const secondary = rules.revisedSkills ? skills : revisedSkills
     const map: Record<string, string[]> = {}
-    skills.forEach( ( skill ) =>
+    secondary.forEach( ( skill ) =>
     {
-        if ( !skill.group ) return
-        map[ skill.name ] = [ ...skill.group.show ]
+        if ( skill.group ) map[ skill.name ] = [ ...skill.group.show ]
+    } )
+    primary.forEach( ( skill ) =>
+    {
+        if ( skill.group ) map[ skill.name ] = [ ...skill.group.show ]
     } )
     if ( viewData )
     {
@@ -104,9 +156,13 @@ export function resetShowingChildSkills ( viewData?: COCCardViewData )
 // 第一部分——属性：力量60str60敏捷60dex60……
 // 第二部分——衍生属性：hp12体力12mp12魔法12san60理智60san值60
 // 第三部分——技能：母语60英语60日语40汽车驾驶25……
-export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardViewData )
+export function getDiceMaidStString (
+    pc: COCPlayerCharacter,
+    viewData: COCCardViewData,
+    rules: RuleSet = DEFAULT_RULES,
+)
 {
-    const { attributes, deriveAttributes, skillPoints } = pc
+    const { attributes, deriveAttributes, skillPoints, battleAttributes } = pc
     const {
         str = 0,
         con = 0,
@@ -124,9 +180,10 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
         sanity: san = { now: 0, start: 0 },
     } = deriveAttributes || {}
     const sanNow = san.now == null || san.now === '' ? san.start : san.now
+    const mov = battleAttributes?.mov ?? ''
     // 骰娘导入 带名字
     const attributesString = `${ pc.name }-力量${ str }str${ str }敏捷${ dex }dex${ dex }体质${ con }con${ con }外貌${ app }app${ app }智力${ int }灵感${ int }int${ int }意志${ pow }pow${ pow }体型${ siz }siz${ siz }教育${ edu }edu${ edu }幸运${ luc }运气${ luc }luck${ luc }`
-    const deriveAttributesString = `hp${ hp.start }体力${ hp.start }mp${ mp.start }魔法${ mp.start }san${ sanNow }理智${ sanNow }理智值${ sanNow }san值${ sanNow }`
+    const deriveAttributesString = `hp${ hp.start }体力${ hp.start }mp${ mp.start }魔法${ mp.start }san${ sanNow }理智${ sanNow }理智值${ sanNow }san值${ sanNow }mov${ mov }移动力${ mov }`
     let skillString = ''
 
     const pcPointsMap: Record<string, SkillPoint> = {}
@@ -147,10 +204,12 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
         pcPointsMap[ mapKey ] = skillPoint
     } )
 
-    skills.forEach( ( skill ) =>
+    const skillList = getSkills( rules )
+    const aliases = rules.revisedSkills ? revisedSkillNameAlias : skillNameAlias
+    skillList.forEach( ( skill ) =>
     {
-        const { name, displayName, init, group } = skill
-        let realInit = dynamicInitFormulas[ name ] ? dynamicInitFormulas[ name ]( pc ) : init
+        const { name, displayName, group } = skill
+        let realInit = getSkillInit( name, pc, rules, pc.job )
         const dispName = displayName ?? name
 
         if ( !group )
@@ -167,10 +226,10 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
             }
             skillString += `${ dispName }${ total }`
             // aliases
-            const aliases = skillNameAlias[ name ]
-            if ( aliases )
+            const skillAliases = aliases[ name ]
+            if ( skillAliases )
             {
-                skillString += aliases.map( ( alias ) => `${ alias }${ total }` ).join( '' )
+                skillString += skillAliases.map( ( alias ) => `${ alias }${ total }` ).join( '' )
             }
             delete pcPointsMap[ name ]
         } else
@@ -184,7 +243,7 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
                 const point = pcPointsMap[ mapKey ]
                 if ( name )
                 {
-                    realInit = skill.group?.skills.find( ( s ) => s.name === childSkillName )?.init || realInit
+                    realInit = getSkillInit( childSkillName, pc, rules, pc.job ) || realInit
                 }
                 if ( point )
                 {
@@ -199,10 +258,10 @@ export function getDiceMaidStString ( pc: COCPlayerCharacter, viewData: COCCardV
                     skillString += `${ childSkillName }${ total }`
                 }
                 // aliases
-                const aliases = skillNameAlias[ childSkillName ]
-                if ( aliases )
+                const childAliases = aliases[ childSkillName ]
+                if ( childAliases )
                 {
-                    skillString += aliases.map( ( alias ) => `${ alias }${ total }` ).join( '' )
+                    skillString += childAliases.map( ( alias ) => `${ alias }${ total }` ).join( '' )
                 }
                 delete pcPointsMap[ mapKey ]
             } )

@@ -4,51 +4,27 @@ import { watch } from 'vue';
 import PaperSection from '../components/PaperSection.vue';
 import WritableRow from '../components/WritableRow.vue';
 
-import { usePC } from '../hooks/useProviders';
+import { usePC, useRules } from '../hooks/useProviders';
+import { calculateDB, calculateMOV } from '../models/attribute';
 
 const pc = usePC();
+const rules = useRules();
 
 watch(
-  () => pc?.value.attributes,
+  [() => pc?.value.attributes, () => rules?.value],
   () => {
     if (!pc) return;
     const { str, siz, dex } = pc.value.attributes;
-    const age = Number(pc.value.age);
     // calculate DB
-    if (str && siz) {
-      const value = str + siz;
-      if (value < 65) {
-        pc.value.battleAttributes.db = '-2';
-        pc.value.battleAttributes.size = '-2';
-      } else if (value < 85) {
-        pc.value.battleAttributes.db = '-1';
-        pc.value.battleAttributes.size = '-1';
-      } else if (value < 125) {
-        pc.value.battleAttributes.db = '0';
-        pc.value.battleAttributes.size = '0';
-      } else if (value < 165) {
-        pc.value.battleAttributes.db = '1D4';
-        pc.value.battleAttributes.size = '1';
-      } else if (value < 205) {
-        pc.value.battleAttributes.db = '1D6';
-        pc.value.battleAttributes.size = '2';
-      } else {
-        const rate = Math.floor((value - 205) / 80) + 2;
-        pc.value.battleAttributes.db = `${rate}D6`;
-        pc.value.battleAttributes.size = `${rate + 1}`;
-      }
+    const dbResult = calculateDB(str, siz);
+    if (dbResult) {
+      pc.value.battleAttributes.db = dbResult.db;
+      pc.value.battleAttributes.size = dbResult.size;
     }
     // calculate mov
-    if (str && siz && dex) {
-      let move = 8;
-      if (str < siz && dex < siz) move = 7;
-      else if (str > siz && dex > siz) move = 9;
-      else move = 8;
-      if (age >= 40) {
-        const rate = Math.floor((age - 40) / 10) + 1;
-        move -= rate;
-      }
-      pc.value.battleAttributes.mov = `${move}`;
+    const movResult = calculateMOV(str, siz, dex, rules?.value);
+    if (movResult) {
+      pc.value.battleAttributes.mov = movResult;
     }
   },
   { deep: true },

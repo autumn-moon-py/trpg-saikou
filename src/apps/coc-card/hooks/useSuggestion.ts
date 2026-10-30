@@ -1,7 +1,7 @@
 import { computed, watch } from 'vue';
 import type { ComputedRef, Ref } from 'vue';
 
-import formattedJobs from '../models/job';
+import { getJob } from '../models/job';
 import { getJobSuggestion } from '../models/suggestion';
 import { resetShowingChildSkills } from '../models/skill';
 
@@ -9,6 +9,7 @@ import type { COCPlayerCharacter } from '../types/character';
 import type { COCCardViewData } from '../types/viewData';
 import type { PageData } from '../types/pageData';
 import type { Suggestion } from '../types/suggestion';
+import type { RuleSet } from '../types/rules';
 
 // calculate suggestion: pro skills, wealth
 export default function useSuggestion(
@@ -16,23 +17,23 @@ export default function useSuggestion(
   options: {
     viewData: COCCardViewData;
     pageData: PageData;
+    rules: ComputedRef<RuleSet>;
   },
 ): ComputedRef<Suggestion> {
-  const { jobs } = formattedJobs;
-  const { viewData, pageData } = options;
+  const { viewData, pageData, rules } = options;
 
   const suggestion = computed(() => {
-    return getJobSuggestion(pc.value.job);
+    return getJobSuggestion(pc.value.job, rules.value);
   });
 
   watch(
     () => pc.value.job,
     () => {
-      const job = jobs.get(pc.value.job);
+      const job = getJob(pc.value.job, rules.value);
       if (!job || pageData.importing) return;
       // pick skills
       viewData.jobSkills = [...job.skills];
-      resetShowingChildSkills(viewData);
+      resetShowingChildSkills(viewData, rules.value);
       pc.value.proSkills = [];
       const placedGroupSkill: Record<string, number> = {};
       job.skills.forEach((skillKey) => {

@@ -11,7 +11,7 @@ export const skillGroups: Record<SkillGroupName, string[]> = {
         '追踪',
         '导航',
     ],
-    社交: [ '社交', '心理学', '母语', '外语', '读唇' ],
+    社交: [ '社交', '心理学', '母语', '外语', ],
     战斗: [
         '闪避',
         '武术',
@@ -26,7 +26,7 @@ export const skillGroups: Record<SkillGroupName, string[]> = {
         '医学',
         '东方医学',
         '精神分析',
-        '催眠',
+        // '催眠',
     ],
     运动: [
         '攀爬',
@@ -38,7 +38,6 @@ export const skillGroups: Record<SkillGroupName, string[]> = {
         '博物学',
         '武士道',
         // '通灵',
-        '风水',
         '稽古',
         '神秘学',
         '考古学',
