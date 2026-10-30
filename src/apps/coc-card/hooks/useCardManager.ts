@@ -7,6 +7,7 @@ import type { COCCardViewData } from '../types/viewData';
 import type { PageData } from '../types/pageData';
 import { createPC } from '../models/character';
 import { createViewData } from '../models/viewData';
+import { createRules } from '../models/rules';
 
 import useAppLs, { type CardMeta } from './useAppLs';
 import { saveCard, loadCard, deleteCard as deleteCardStorage, cleanupOrphanedCards } from './useCardStorage';
@@ -99,7 +100,7 @@ export default function useCardManager(
 
     // 写入空卡片
     const newPC = createPC();
-    const newVD = createViewData();
+    const newVD = createViewData(undefined, createRules(pageData.useNewRules));
     saveCard(id, newPC, newVD);
 
     // 替换当前状态
@@ -115,10 +116,32 @@ export default function useCardManager(
     if (!card) return false;
 
     pageData.importing = true;
-    const { pc, showingChildSkillsPatch } = createPC(card.pc, true);
+    const rules = createRules(pageData.useNewRules);
+    const wasNewFormat = card.viewData?.ruleFormat === 'new';
+    const { pc, showingChildSkillsPatch } = createPC(
+      card.pc,
+      true,
+      rules,
+      card.viewData,
+    );
     pcRef.value = pc;
     // 先重置为默认值，再应用加载数据，避免旧 key 残留导致串档
-    Object.assign(viewData, createViewData(), card.viewData);
+    Object.assign(viewData, createViewData(undefined, rules), card.viewData);
+    // 加载后按当前规则标记卡格式：旧卡已在上面的 createPC 中完成转换
+    if (!rules.revisedSkills && wasNewFormat) {
+      if (viewData.ruleMigration?.revertedToOld) {
+        // 已经回退过一次，不再自动转换，保留新版格式
+        viewData.ruleFormat = 'new';
+      } else {
+        viewData.ruleFormat = 'old';
+        viewData.ruleMigration = {
+          ...(viewData.ruleMigration ?? {}),
+          revertedToOld: true,
+        };
+      }
+    } else {
+      viewData.ruleFormat = rules.revisedSkills ? 'new' : 'old';
+    }
     // 旧社交技能迁移后，将子技能名填入 showingChildSkills
     if (showingChildSkillsPatch) {
       for (const [key, value] of Object.entries(showingChildSkillsPatch)) {
@@ -155,47 +178,6 @@ export default function useCardManager(
     }
   }
 
-  /** 复制卡片 */
-  function duplicateCard(id: string): string | null {
-    const source = loadCard(id);
-    if (!source) return null;
-
-    flushSave();
-
-    const newId = generateCardId();
-    const sourceMeta = cardMetaList.value.find(m => m.id === id);
-    const meta: CardMeta = {
-      id: newId,
-      name: source.pc.name || '未命名角色卡',
-      saveName: `${sourceMeta?.saveName || '存档'} (副本)`,
-      lastModified: Date.now(),
-      createdAt: Date.now(),
-    };
-
-    const list = [...cardMetaList.value, meta];
-    ls.setItem('cardMetaList', list);
-    saveCard(newId, source.pc, source.viewData);
-    ls.setItem('activeCardId', newId);
-
-    // 替换当前状态
-    pageData.importing = true;
-    const { pc: newPC, showingChildSkillsPatch } = createPC(source.pc, true);
-    pcRef.value = newPC;
-    Object.keys(source.viewData).forEach(key => {
-      const k = key as keyof COCCardViewData;
-      (viewData as any)[k] = (source.viewData as any)[k];
-    });
-    // 旧社交技能迁移后，将子技能名填入 showingChildSkills
-    if (showingChildSkillsPatch) {
-      for (const [key, value] of Object.entries(showingChildSkillsPatch)) {
-        viewData.showingChildSkills[key] = value;
-      }
-    }
-    setTimeout(() => { pageData.importing = false; }, 50);
-
-    return newId;
-  }
-
   /** 重命名存档 */
   function renameCard(id: string, newSaveName: string) {
     const list = [...cardMetaList.value];
@@ -209,7 +191,7 @@ export default function useCardManager(
   function resetCurrentCard() {
     pageData.importing = true;
     pcRef.value = createPC();
-    Object.assign(viewData, createViewData());
+    Object.assign(viewData, createViewData(undefined, createRules(pageData.useNewRules)));
     // 清除自动保存缓存，防止旧数据被误恢复
     ls.removeItem('autoSaved');
     setTimeout(() => {
@@ -276,7 +258,7 @@ export default function useCardManager(
       };
       ls.setItem('cardMetaList', [meta]);
       ls.setItem('activeCardId', id);
-      saveCard(id, legacy.pc, legacy.viewData || createViewData());
+      saveCard(id, legacy.pc, legacy.viewData || createViewData(undefined, createRules(pageData.useNewRules)));
       ls.removeItem('autoSaved');
 
       // 电脑端不自动加载迁移的存档
@@ -320,7 +302,6 @@ export default function useCardManager(
     createCard,
     switchCard,
     deleteCard: deleteCardById,
-    duplicateCard,
     renameCard,
     resetCurrentCard,
     clearAllCards,

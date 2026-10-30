@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue';
+import { ref, reactive, computed, watch, nextTick, onMounted, onActivated } from 'vue';
 import { ElMessage, MessageHandler } from 'element-plus';
 
 import PaperSection from '../components/PaperSection.vue';
 import WritableArea from '../components/WritableArea.vue';
 
-import { usePC, usePageData } from '../hooks/useProviders';
+import { usePC, usePageData, useRules } from '../hooks/useProviders';
 
 import type { COCPlayerCharacter } from '../types/character';
 
@@ -17,6 +17,21 @@ interface AreaConfig {
 
 const pc = usePC();
 const pageData = usePageData();
+const rules = useRules();
+
+// 修订版：重要之人与意义非凡之地合并为一个字段
+const personPlace = computed({
+  get: () => {
+    if (!pc) return '';
+    const { IPerson, IPlace } = pc.value.stories;
+    return [IPerson, IPlace].filter((text) => text && text.trim()).join('\n');
+  },
+  set: (value: string) => {
+    if (!pc) return;
+    pc.value.stories.IPerson = value;
+    pc.value.stories.IPlace = '';
+  },
+});
 
 const BASE_ROWS = 3;
 const SMALL_ROWS = 4;
@@ -44,6 +59,75 @@ const restRows = computed(() => {
   return isMobile.value ? Math.ceil(total / 2) : total;
 });
 
+// 修订版背景故事少一行，把“特质”行数动态扩展到填满右列剩余高度
+const leftColumnRef = ref<HTMLElement | null>(null);
+const rightColumnRef = ref<HTMLElement | null>(null);
+const traitRowsOverride = ref<number | null>(null);
+
+function getAreaRows(config: AreaConfig) {
+  const base = config.size === 'small' ? SMALL_ROWS : BASE_ROWS;
+  if (!rules?.value.revisedStory || config.fieldName !== 'trait') return base;
+  return traitRowsOverride.value ?? base;
+}
+
+/** 测量左右列实际高度，把“特质”扩展到与右列底部对齐 */
+async function syncTraitRows() {
+  await nextTick();
+  const left = leftColumnRef.value;
+  const right = rightColumnRef.value;
+  if (!rules?.value.revisedStory || !left || !right) {
+    traitRowsOverride.value = null;
+    return;
+  }
+  const areas = [...left.querySelectorAll<HTMLElement>('.writable-area')];
+  const traitArea = areas.find(
+    (el) => el.querySelector('.label')?.textContent?.trim() === '特质',
+  );
+  const textarea = traitArea?.querySelector('textarea');
+  if (!traitArea || !textarea) return;
+
+  const targetHeight = [...right.querySelectorAll<HTMLElement>('.writable-area')].reduce(
+    (sum, el) => sum + el.getBoundingClientRect().height,
+    0,
+  );
+  if (!targetHeight) return;
+  const leftWithoutTrait = areas
+    .filter((el) => el !== traitArea)
+    .reduce((sum, el) => sum + el.getBoundingClientRect().height, 0);
+  const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight) || 24;
+  const traitConfig = leftConfigs.find((config) => config.fieldName === 'trait');
+  const baseRows = traitConfig?.size === 'small' ? SMALL_ROWS : BASE_ROWS;
+  const targetRows = Math.max(
+    baseRows,
+    Math.ceil((targetHeight - leftWithoutTrait) / lineHeight),
+  );
+  if (traitRowsOverride.value !== targetRows) {
+    traitRowsOverride.value = targetRows;
+  }
+}
+
+watch(
+  () => [
+    pc?.value.stories,
+    rules?.value.revisedStory,
+    pageData?.printing,
+    restConfig.size,
+    isMobile.value,
+    leftConfigs.map((config) => `${config.fieldName}:${config.size}`).join('|'),
+  ],
+  () => {
+    nextTick(syncTraitRows);
+  },
+  { deep: true },
+);
+
+onMounted(() => {
+  nextTick(syncTraitRows);
+});
+onActivated(() => {
+  nextTick(syncTraitRows);
+});
+
 const showingAlert = ref<MessageHandler>();
 function onResizeConfig(config: Partial<AreaConfig>) {
   showingAlert.value?.close();
@@ -65,6 +149,7 @@ watch(
         config.size = 'base';
       }
     });
+    nextTick(syncTraitRows);
   },
   {
     deep: true,
@@ -78,19 +163,37 @@ watch(
     title="背景故事"
   >
     <div class="story-section-body">
-      <div class="story-section-column col-2">
+      <div
+        ref="leftColumnRef"
+        class="story-section-column col-2"
+      >
         <!-- :maxlength="config.rows * 23 - config.label.length - 1" -->
-        <WritableArea
+        <template
           v-for="config in leftConfigs"
           :key="config.fieldName"
-          :label="config.label"
-          v-model="pc.stories[config.fieldName]"
-          :rows="config.size === 'small' ? SMALL_ROWS : BASE_ROWS"
-          :size="config.size"
-          @oversize="() => onResizeConfig(config)"
-        />
+        >
+          <WritableArea
+            v-if="rules?.revisedStory && config.fieldName === 'IPerson'"
+            label="重要之人与之地"
+            v-model="personPlace"
+            :rows="getAreaRows(config)"
+            :size="config.size"
+            @oversize="() => onResizeConfig(config)"
+          />
+          <WritableArea
+            v-else-if="!(rules?.revisedStory && config.fieldName === 'IPlace')"
+            :label="config.label"
+            v-model="pc.stories[config.fieldName]"
+            :rows="getAreaRows(config)"
+            :size="config.size"
+            @oversize="() => onResizeConfig(config)"
+          />
+        </template>
       </div>
-      <div class="story-section-column col-3">
+      <div
+        ref="rightColumnRef"
+        class="story-section-column col-3"
+      >
         <WritableArea
           v-for="config in rightConfigs"
           :key="config.fieldName"

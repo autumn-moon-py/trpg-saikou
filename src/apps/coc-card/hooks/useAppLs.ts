@@ -15,6 +15,7 @@ export interface CardMeta {
 interface Store {
   showTotalSeparation?: boolean;
   importOverwriteMode?: boolean;
+  useNewRules?: boolean;
   activeCardId?: string;
   cardMetaList?: CardMeta[];
   // 旧格式——仅用于迁移

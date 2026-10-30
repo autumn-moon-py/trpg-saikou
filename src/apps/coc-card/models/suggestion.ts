@@ -1,7 +1,10 @@
-import formattedJobs from '../models/job';
+import { getJob } from './job';
+import { getSkills } from './skill';
 import { countTexts } from '../constants/texts';
+import { DEFAULT_RULES } from '../types/rules';
 
 import type { Suggestion, SuggestionMultiSkill } from '../types/suggestion';
+import type { RuleSet } from '../types/rules';
 
 export function getDefaultSuggestion(
   override?: Partial<Suggestion>,
@@ -15,27 +18,33 @@ export function getDefaultSuggestion(
   };
 }
 
-export function getJobSuggestion(jobName: string): Suggestion {
-  const { jobs } = formattedJobs;
+export function getJobSuggestion(
+  jobName: string,
+  rules: RuleSet = DEFAULT_RULES,
+): Suggestion {
   const suggestion = getDefaultSuggestion();
 
-  const job = jobs.get(jobName);
+  const job = getJob(jobName, rules);
   const sugMap = new Map<string, number>();
   if (!job) return suggestion;
+  const displayNames = new Map(
+    getSkills(rules).map((skill) => [skill.name, skill.displayName ?? skill.name]),
+  );
+  const displayName = (name: string) => displayNames.get(name) ?? name;
   // wealth
   suggestion.wealth = [...job.wealth];
   // handle suggest skills
   job.skills.forEach((skillKey) => {
     // 普通技能
     if (typeof skillKey === 'string') {
-      sugMap.set(skillKey, 0);
+      sugMap.set(displayName(skillKey), 0);
     } else if (Array.isArray(skillKey)) {
       // 多选技能
       suggestion.multiSkills.push(
         skillKey.map((skillKey) => {
-          if (typeof skillKey === 'string') return skillKey;
+          if (typeof skillKey === 'string') return displayName(skillKey);
           const [name, childName] = Object.entries(skillKey)[0];
-          return { name, childName };
+          return { name: displayName(name), childName };
         }),
       );
     } else {
@@ -47,9 +56,11 @@ export function getJobSuggestion(jobName: string): Suggestion {
         skillName = skillName.split('(')[0];
       }
       // set suggestion item
-      let sugKey = skillName;
-      if (childSkillName) sugKey = `${skillName}(${childSkillName})`;
-      if (isDescribedName) sugKey = skillNameDesc;
+      let sugKey = displayName(skillName);
+      if (childSkillName) sugKey = `${displayName(skillName)}(${childSkillName})`;
+      if (isDescribedName) {
+        sugKey = `${displayName(skillName)}${skillNameDesc.slice(skillName.length)}`;
+      }
       sugMap.set(
         sugKey,
         isDescribedName || childSkillName ? 0 : (sugMap.get(sugKey) || 0) + 1,
@@ -57,15 +68,19 @@ export function getJobSuggestion(jobName: string): Suggestion {
     }
   });
   // set suggestion
-  const restCount = 8 - job.skills.length;
-  suggestion.text = [
-    ...sugMap.entries(),
-    ...(restCount ? [['其他个人或时代特长', restCount]] : []),
-  ]
-    .map(
-      ([key, count]) => `${key}${count ? `(任${countTexts[`${count}`]})` : ''}`,
-    )
-    .join('、');
+  const parts = [...sugMap.entries()].map(
+    ([key, count]) => `${key}${count ? `(任${countTexts[`${count}`]})` : ''}`,
+  );
+  const freeSkills = job.freeSkills?.length
+    ? job.freeSkills
+    : (() => {
+        const restCount = Math.max(0, 8 - job.skills.length);
+        return restCount ? [{ name: '其他个人或时代特长', count: restCount }] : [];
+      })();
+  freeSkills.forEach(({ name, count }) => {
+    parts.push(`${name}${count ? `(任${countTexts[`${count}`]})` : ''}`);
+  });
+  suggestion.text = parts.join('、');
   // set mutil skill texts
   suggestion.multiSkillTexts = getMultiSkillTexts(suggestion);
 

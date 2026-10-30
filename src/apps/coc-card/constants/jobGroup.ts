@@ -193,6 +193,10 @@ export const jobGroups: JobGroup[] = [
             [ '经纪人', 'jingjiren' ],
             [ '机械师', 'jixieshi' ],
             [ '厨师', 'chushi' ],
+            [ '私立七伏学园-普通科', 'silisiqifuxueyuanputongke' ],
+            [ '私立七伏学园-国际科', 'silisiqifuxueyuanguojike' ],
+            [ '私立七伏学园-艺术科', 'silisiqifuxueyuanyishuke' ],
+            [ '私立七伏学园-运动科', 'silisiqifuxueyuanyundongke' ],
         ],
     ],
 ]

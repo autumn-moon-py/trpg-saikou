@@ -7,13 +7,16 @@ import { Dessert } from '@element-plus/icons-vue';
 
 import ControlButton from '../../ControlButton.vue';
 import ControlDialog from '../../ControlDialog.vue';
-import { usePC, useViewData } from '../../../hooks/useProviders';
+import { usePC, useViewData, useRules } from '../../../hooks/useProviders';
 import { getDiceMaidStString } from '../../../models/skill.ts';
 
 const pc = usePC();
 const viewData = useViewData();
+const rules = useRules();
 const str = computed(
-  () => '.st ' + (pc && viewData ? getDiceMaidStString(pc.value, viewData) : ''),
+  () =>
+    '.st ' +
+    (pc && viewData ? getDiceMaidStString(pc.value, viewData, rules?.value) : ''),
 );
 
 const visible = ref(false);

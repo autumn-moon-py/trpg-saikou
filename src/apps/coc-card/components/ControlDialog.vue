@@ -59,4 +59,28 @@ defineEmits<Emits>();
   gap: 12px;
   flex-shrink: 0;
 }
+
+/* 竖屏下 header 换行：标题一行，操作按钮一行 */
+@media screen and (orientation: portrait) {
+  .el-dialog.coc-card-control-dialog {
+    padding: 8px 8px 8px 5px !important;
+  }
+  .el-dialog__header.show-close {
+    padding-right: 8px !important;
+    padding-left: 15px !important;
+  }
+  .coc-card-control-dialog .el-dialog__body {
+    padding-left: 5px !important;
+  }
+  .control-dialog-header {
+    flex-wrap: wrap;
+    padding-right: 0;
+    gap: 8px;
+  }
+  .control-dialog-header-actions {
+    flex-basis: 100%;
+    flex-shrink: 1;
+    gap: 8px;
+  }
+}
 </style>

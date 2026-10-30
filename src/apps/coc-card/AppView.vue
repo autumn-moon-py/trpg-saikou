@@ -4,15 +4,18 @@ import qs from 'qs';
 
 import { createPC } from './models/character';
 import { createViewData } from './models/viewData';
+import { createRules } from './models/rules';
 
 import type { COCPlayerCharacter } from './types/character';
 import type { COCCardViewData } from './types/viewData';
 import type { PageData } from './types/pageData';
+import type { RuleSet } from './types/rules';
 
 import useDerives from './hooks/useDerives';
 import useSuggestion from './hooks/useSuggestion';
 import useAppLs from './hooks/useAppLs';
 import useCardManager from './hooks/useCardManager';
+import useRuleSwitch from './hooks/useRuleSwitch';
 
 import ControlSection from './sections/ControlSection.vue';
 import PaperFront from './PaperFront.vue';
@@ -20,15 +23,17 @@ import PaperBack from './PaperBack.vue';
 import { ElMessage } from 'element-plus';
 
 const qsObject = qs.parse(location.search.slice(1));
-const pcRef = ref<COCPlayerCharacter>(createPC());
 const ls = useAppLs();
-const viewData = reactive<COCCardViewData>(createViewData(qsObject));
 const pageData = reactive<PageData>({
   paperInFront: qsObject.turn === 'back' ? false : true,
   printing: qsObject.debug === 'true',
   importing: false,
   showTotalSeparation: qsObject.sep === 'true' || ls.getItem('showTotalSeparation') || false,
+  useNewRules: qsObject.rules === 'true' || ls.getItem('useNewRules') || false,
 });
+const rules = computed<RuleSet>(() => createRules(pageData.useNewRules));
+const viewData = reactive<COCCardViewData>(createViewData(qsObject, rules.value));
+const pcRef = ref<COCPlayerCharacter>(createPC());
 const controlSectionRef = ref(ControlSection);
 
 watch(
@@ -38,10 +43,20 @@ watch(
   },
 );
 
+watch(
+  () => pageData.useNewRules,
+  (value) => {
+    ls.setItem('useNewRules', value);
+  },
+);
+
+const ruleSwitch = useRuleSwitch(pcRef, viewData, pageData);
+
 useDerives(pcRef);
 const suggestion = useSuggestion(pcRef, {
   viewData,
   pageData,
+  rules,
 });
 
 // 多角色卡管理 + 自动保存
@@ -52,6 +67,8 @@ cardManager.startAutoSave();
 provide('pc', pcRef);
 provide('viewData', viewData);
 provide('pageData', pageData);
+provide('rules', rules);
+provide('ruleSwitch', ruleSwitch);
 provide('suggestion', suggestion);
 provide('cardManager', cardManager);
 
@@ -93,7 +110,9 @@ const processText = (text: string | ArrayBuffer | null) => {
 };
 
 import { isDesktop } from '@/utils/platform';
+import { useIsMobileLayout } from './hooks/usePlatform';
 const isFull = computed(() => isDesktop());
+const isMobileLayout = useIsMobileLayout();
 
 async function actReadClipboard() {
   try {
@@ -118,13 +137,25 @@ function actCopyExport() {
       @drop="handleDrop"
       @dragover.prevent="handleDragOver"
     >
-      <div class="papers-animation-container papers-editing web-only">
-        <Transition name="swipe-paper">
+      <div class="papers-animation-container papers-editing web-only" :class="{ 'papers-mobile-stack': isMobileLayout }">
+        <!-- 竖屏：正背两面纵向堆叠，无需翻页 -->
+        <template v-if="isMobileLayout">
           <KeepAlive>
-            <PaperFront v-if="pageData.paperInFront" />
-            <PaperBack v-else />
+            <PaperFront />
           </KeepAlive>
-        </Transition>
+          <KeepAlive>
+            <PaperBack />
+          </KeepAlive>
+        </template>
+        <!-- 桪屏/桌面：保持原有翻页逻辑 -->
+        <template v-else>
+          <Transition name="swipe-paper">
+            <KeepAlive>
+              <PaperFront v-if="pageData.paperInFront" />
+              <PaperBack v-else />
+            </KeepAlive>
+          </Transition>
+        </template>
       </div>
       <div
         class="papers-animation-container papers-printing"
@@ -264,6 +295,11 @@ function actCopyExport() {
   }
   .fab-clipboard {
     display: none;
+  }
+  .papers-mobile-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
   }
 }
 

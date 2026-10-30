@@ -1,6 +1,8 @@
-import { throwDice, growPoint } from '../utils';
+import { throwDice } from '../utils';
 
+import { DEFAULT_RULES } from '../types/rules';
 import type { COCAttributes, COCAttributesKey } from '../types/character';
+import type { RuleSet } from '../types/rules';
 
 const normalAttrs: COCAttributesKey[] = ['str', 'dex', 'con', 'app', 'pow'];
 const higherAttrs: COCAttributesKey[] = ['siz', 'edu', 'int'];
@@ -18,51 +20,6 @@ export function generateRandomAttributes() {
     attributes[key] = throwDice(6, 3) * 5;
   });
   return attributes as COCAttributes;
-}
-
-export function modifyAttributesByAge(
-  attributes: Partial<COCAttributes>,
-  age: number,
-): COCAttributes {
-  let results = withDefaultAttributes(attributes);
-  if (age < 15) {
-    // ignore this
-  } else if (age < 20) {
-    // 15 ~ 19
-    results = minusAttributes(results, ['str', 'siz'], 5);
-    results.luc = Math.max(results.luc, throwDice(6, 3) * 5);
-  } else if (age < 40) {
-    // 20 ~ 39
-    results.edu = growPoint(results.edu);
-  } else if (age < 50) {
-    // 40 ~ 49
-    results = minusAttributes(results, ['str', 'con', 'dex'], 5);
-    results.app = results.app - 5;
-    results.edu = growPoint(results.edu, 2);
-  } else if (age < 60) {
-    // 50 ~ 59
-    results = minusAttributes(results, ['str', 'con', 'dex'], 10);
-    results.app = results.app - 10;
-    results.edu = growPoint(results.edu, 3);
-  } else if (age < 70) {
-    // 60 ~ 69
-    results = minusAttributes(results, ['str', 'con', 'dex'], 20);
-    results.app = results.app - 15;
-    results.edu = growPoint(results.edu, 4);
-  } else if (age < 80) {
-    // 70 ~ 79
-    results = minusAttributes(results, ['str', 'con', 'dex'], 40);
-    results.app = results.app - 20;
-    results.edu = growPoint(results.edu, 4);
-  } else if (age < 90) {
-    // 80 ~ 89
-    results = minusAttributes(results, ['str', 'con', 'dex'], 80);
-    results.app = results.app - 25;
-    results.edu = growPoint(results.edu, 4);
-  }
-  results.app = Math.max(results.app, 5);
-  results.edu = Math.min(results.edu, 99);
-  return results;
 }
 
 export function getAttributesSum(attributes: COCAttributes) {
@@ -93,33 +50,35 @@ export function withDefaultAttributes(
   };
 }
 
-function minusAttributes(
-  attributes: COCAttributes,
-  keys: COCAttributesKey[],
-  total: number,
-): COCAttributes {
-  const results = { ...attributes };
-  const sum = keys.reduce((sum, key) => sum + results[key], 0);
+/** 根据 STR+SIZ 计算 DB 和体格 */
+export function calculateDB(str?: number, siz?: number): { db: string; size: string } | null {
+  if (!str || !siz) return null;
+  const value = str + siz;
+  if (value < 65) return { db: '-2', size: '-2' };
+  if (value < 85) return { db: '-1', size: '-1' };
+  if (value < 125) return { db: '0', size: '0' };
+  if (value < 165) return { db: '1D4', size: '1' };
+  if (value < 205) return { db: '1D6', size: '2' };
+  const rate = Math.floor((value - 205) / 80) + 2;
+  return { db: `${rate}D6`, size: `${rate + 1}` };
+}
 
-  // 如果年龄过大，数值过小
-  if (sum < total + keys.length * 5) {
-    keys.forEach((key) => (results[key] = 5));
-    return results;
+/** 根据 STR/SIZ/DEX 计算 MOV（不含年龄修正） */
+export function calculateMOV(
+  str?: number,
+  siz?: number,
+  dex?: number,
+  rules: RuleSet = DEFAULT_RULES,
+): string | null {
+  if (!str || !siz || !dex) return null;
+  // 修订版：基础 7，力量/敏捷高于体型各 +1
+  if (rules.revisedMov) {
+    let mov = 7;
+    if (str > siz) mov += 1;
+    if (dex > siz) mov += 1;
+    return `${mov}`;
   }
-
-  let rest = total;
-  keys.forEach((key, index) => {
-    if (index === keys.length - 1) {
-      if (results[key] - rest < 5) {
-        return minusAttributes(results, keys, rest);
-      }
-      results[key] = results[key] - rest;
-    } else {
-      let minus = throwDice(rest + 1) - 1;
-      if (results[key] - minus < 5) minus = results[key] - 5;
-      rest = rest - minus;
-      results[key] = results[key] - minus;
-    }
-  });
-  return results;
+  if (str < siz && dex < siz) return '7';
+  if (str > siz && dex > siz) return '9';
+  return '8';
 }

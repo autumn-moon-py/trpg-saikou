@@ -11,6 +11,7 @@ import {
   Refresh,
   DocumentCopy,
   FolderOpened,
+  Plus,
 } from '@element-plus/icons-vue';
 
 // components
@@ -24,6 +25,7 @@ import DiceMaid from '../components/control-section-parts/dice-maid/DiceMaid.vue
 // models
 import { createPC } from '../models/character';
 import { resetViewData } from '../models/viewData';
+import { createRules } from '../models/rules';
 
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
@@ -61,6 +63,21 @@ import type { ComputedRef } from 'vue';
 
 const pageData = usePageData();
 const isMobileLayout = useIsMobileLayout();
+const ruleSwitch = inject<{ requestChange: (next: boolean) => void } | null>(
+  'ruleSwitch',
+  null,
+);
+
+const useNewRules = computed({
+  get: () => pageData?.useNewRules ?? false,
+  set: (val: boolean) => {
+    if (ruleSwitch) {
+      ruleSwitch.requestChange(val);
+    } else if (pageData) {
+      pageData.useNewRules = val;
+    }
+  },
+});
 
 // DevTools 模拟竖屏：platform API 优先读取物理方向，不反映模拟视口，
 // 补充视口比例检测使开发者工具中的竖屏模拟也能生效
@@ -163,7 +180,7 @@ function actResetCard() {
   } else {
     // 回退：旧式重置
     pc.value = reactive(createPC());
-    resetViewData(viewData);
+    resetViewData(viewData, createRules(pageData?.useNewRules));
     nextTick(() => {
       ls.removeItem('autoSaved');
     });
@@ -202,12 +219,33 @@ function applyInData() {
 
       pageData && (pageData.importing = true);
 
-      const { pc: newPC, showingChildSkillsPatch } = createPC(data.pc, true);
+      const wasNewFormat = data.viewData?.ruleFormat === 'new';
+      const { pc: newPC, showingChildSkillsPatch } = createPC(
+        data.pc,
+        true,
+        createRules(pageData?.useNewRules),
+        data.viewData,
+      );
       pc.value = newPC;
       Object.keys(data.viewData).forEach((key) => {
         const k = key as keyof COCCardViewData;
         viewData[k] = data.viewData[k];
       });
+      // 导入后按当前规则标记卡格式
+      const currentRules = createRules(pageData?.useNewRules);
+      if (!currentRules.revisedSkills && wasNewFormat) {
+        if (viewData.ruleMigration?.revertedToOld) {
+          viewData.ruleFormat = 'new';
+        } else {
+          viewData.ruleFormat = 'old';
+          viewData.ruleMigration = {
+            ...(viewData.ruleMigration ?? {}),
+            revertedToOld: true,
+          };
+        }
+      } else {
+        viewData.ruleFormat = currentRules.revisedSkills ? 'new' : 'old';
+      }
       // 旧社交技能迁移后，将子技能名填入 showingChildSkills
       if (showingChildSkillsPatch) {
         for (const [key, value] of Object.entries(showingChildSkillsPatch)) {
@@ -274,6 +312,7 @@ defineExpose({ inData, applyInData, copyOutData });
         @click="actToggleMorePanel"
       />
       <ControlButton
+        v-if="!isMobileLayout"
         label="翻面"
         :icon="Reading"
         @click="actSwitchPaper"
@@ -290,6 +329,18 @@ defineExpose({ inData, applyInData, copyOutData });
         label="更多功能"
         name="features"
       >
+        <div
+          class="more-rules-row"
+          @click="useNewRules = !useNewRules"
+        >
+          <span class="more-rules-label">新版规则</span>
+          <el-switch
+            v-model="useNewRules"
+            size="small"
+            @click.stop
+          />
+          <span class="more-rules-hint">修订版职业与技能</span>
+        </div>
         <div class="more-controls">
           <ControlButton
             label="重置人物卡"
@@ -427,7 +478,7 @@ defineExpose({ inData, applyInData, copyOutData });
     >
       <template #header-actions>
         <div class="archive-header-actions">
-          <span class="archive-toggle-label">覆盖模式</span>
+          <span class="archive-toggle-label">覆盖</span>
           <el-switch v-model="importOverwriteMode" size="small" />
           <el-button
             type="danger"
@@ -437,15 +488,20 @@ defineExpose({ inData, applyInData, copyOutData });
           >
             清空存档
           </el-button>
+          <el-button
+            size="small"
+            class="archive-btn-new"
+            @click="cardManager.createCard()"
+          >
+            <el-icon :size="12" style="margin-right: 4px;"><Plus /></el-icon>新建
+          </el-button>
         </div>
       </template>
       <CardManager
         :metaList="cardManager.metaList.value"
         :activeCardId="cardManager.activeCardId.value"
-        @create-card="cardManager.createCard"
         @switch-card="cardManager.switchCard"
         @delete-card="cardManager.deleteCard"
-        @duplicate-card="cardManager.duplicateCard"
         @rename-card="(id, name) => cardManager.renameCard(id, name)"
       />
     </ControlDialog>
@@ -496,6 +552,23 @@ defineExpose({ inData, applyInData, copyOutData });
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
+}
+.more-rules-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 2px 12px;
+  font-size: 13px;
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  width: fit-content;
+}
+.more-rules-label {
+  opacity: 0.88;
+}
+.more-rules-hint {
+  opacity: 0.6;
 }
 
 .downloader-body {
@@ -558,6 +631,12 @@ defineExpose({ inData, applyInData, copyOutData });
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.archive-btn-new {
+  margin-left: auto;
 }
 
 .archive-toggle-label {

@@ -5,6 +5,7 @@ import type { Suggestion } from '../types/suggestion';
 import type { PageData } from '../types/pageData';
 import type { COCPlayerCharacter } from '../types/character';
 import type { COCCardViewData } from '../types/viewData';
+import type { RuleSet } from '../types/rules';
 
 export function usePC() {
   const pc = inject<Ref<COCPlayerCharacter>>('pc');
@@ -19,6 +20,11 @@ export function usePageData() {
 export function useViewData() {
   const viewData = inject<COCCardViewData>('viewData');
   return viewData;
+}
+
+export function useRules() {
+  const rules = inject<ComputedRef<RuleSet>>('rules');
+  return rules;
 }
 
 export function useSuggestion() {
