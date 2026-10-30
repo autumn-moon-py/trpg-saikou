@@ -26,6 +26,7 @@ import DiceMaid from '../components/control-section-parts/dice-maid/DiceMaid.vue
 import { createPC } from '../models/character';
 import { resetViewData } from '../models/viewData';
 import { createRules } from '../models/rules';
+import { ensureShowingChildSkills } from '../models/skill';
 
 import { usePC, useViewData, usePageData } from '../hooks/useProviders';
 import usePrintPaper from '../hooks/usePrintPaper';
@@ -252,6 +253,8 @@ function applyInData() {
           viewData.showingChildSkills[key] = value;
         }
       }
+      // 旧卡可能缺少当前规则新增分组的键，补齐后才能编辑子技能
+      ensureShowingChildSkills(viewData, currentRules);
       ElMessage.success(
         importOverwriteMode.value ? '已覆盖当前角色卡' : '已导入到新存档',
       );

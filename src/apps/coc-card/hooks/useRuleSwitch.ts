@@ -7,6 +7,7 @@ import { createRules } from '../models/rules';
 import { getJob } from '../models/job';
 import { skills as baseSkills } from '../constants/skill';
 import { revisedSkills } from '../constants/skillRevised';
+import { ensureShowingChildSkills } from '../models/skill';
 
 import type { COCPlayerCharacter, SkillPoint } from '../types/character';
 import type { COCCardViewData } from '../types/viewData';
@@ -207,6 +208,7 @@ export default function useRuleSwitch(
       const result = createPC(pcRef.value, true, createRules(true), viewData);
       pcRef.value = result.pc;
       applyPatch(result.showingChildSkillsPatch);
+      ensureShowingChildSkills(viewData, createRules(true));
       viewData.ruleFormat = 'new';
       pageData.useNewRules = true;
       await nextTick();
@@ -277,6 +279,7 @@ export default function useRuleSwitch(
       const result = createPC(pcRef.value, true, createRules(false), viewData);
       pcRef.value = result.pc;
       applyPatch(result.showingChildSkillsPatch);
+      ensureShowingChildSkills(viewData, createRules(false));
       viewData.ruleFormat = 'old';
       viewData.ruleMigration = {
         ...(viewData.ruleMigration ?? {}),

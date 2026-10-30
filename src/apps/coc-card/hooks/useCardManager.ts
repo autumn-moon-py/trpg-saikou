@@ -8,6 +8,7 @@ import type { PageData } from '../types/pageData';
 import { createPC } from '../models/character';
 import { createViewData } from '../models/viewData';
 import { createRules } from '../models/rules';
+import { ensureShowingChildSkills } from '../models/skill';
 
 import useAppLs, { type CardMeta } from './useAppLs';
 import { saveCard, loadCard, deleteCard as deleteCardStorage, cleanupOrphanedCards } from './useCardStorage';
@@ -148,6 +149,7 @@ export default function useCardManager(
         viewData.showingChildSkills[key] = value;
       }
     }
+    ensureShowingChildSkills(viewData, rules);
     setTimeout(() => { pageData.importing = false; }, 50);
     return true;
   }
