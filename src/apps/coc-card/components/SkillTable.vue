@@ -65,7 +65,7 @@ function getTableData(data: SkillGroups, suggestion?: Suggestion, ruleSet = rule
         const comments =
           skillKey === '信用评级' && hasJob && w0 >= 0 && w1 >= 0
             ? isFixed
-              ? `(固定 ${w0})`
+              ? ``
               : `(${w0}~${w1})`
             : '';
         const total = getTotal(points, init);

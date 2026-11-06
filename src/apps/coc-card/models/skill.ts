@@ -73,6 +73,45 @@ export const dynamicInitFormulas: Record<string, ( pc: COCPlayerCharacter ) => n
     安抚: ( pc ) => Math.floor( ( pc.attributes.app || 0 ) / 5 ),
 }
 
+/** 统计技能在表格中实际占用的行数（分组技能按显示槽位计算） */
+function countSkillRows ( skill: Skill ): number
+{
+    return skill.group ? skill.group.show.length : 1
+}
+
+/**
+ * 计算技能表左右两栏的分割点。
+ * 两栏行数差越大，行高被拉伸得越不一致（横线错位），
+ * 因此取行数最接近的分割点；行数差相同时优先采用 preferred。
+ */
+export function getSkillTableSplitIndex (
+    groups: SkillGroups,
+    preferred = 6,
+): number
+{
+    const rowCounts = groups.map( ( { groupSkills } ) =>
+        groupSkills.reduce( ( sum, skill ) => sum + countSkillRows( skill ), 0 ),
+    )
+    const total = rowCounts.reduce( ( sum, count ) => sum + count, 0 )
+    let best = Math.min( preferred, rowCounts.length - 1 )
+    let bestDiff = Infinity
+    let leftCount = 0
+    for ( let i = 0; i < rowCounts.length - 1; i++ )
+    {
+        leftCount += rowCounts[ i ]
+        const diff = Math.abs( total - leftCount * 2 )
+        const better = diff < bestDiff
+        const tiedButCloser =
+            diff === bestDiff && Math.abs( i + 1 - preferred ) < Math.abs( best - preferred )
+        if ( better || tiedButCloser )
+        {
+            bestDiff = diff
+            best = i + 1
+        }
+    }
+    return best
+}
+
 /** 按技能名查找静态基础值（含别名匹配） */
 function buildSkillInitMap ( skillList: Skill[], aliases: Record<string, string[]> )
 {

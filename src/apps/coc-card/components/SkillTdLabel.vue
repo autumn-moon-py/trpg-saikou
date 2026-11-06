@@ -34,8 +34,10 @@ const isOptionsShowing = ref(false);
 const childInputRef = ref<HTMLInputElement | null>(null);
 const mirrorRef = ref<HTMLSpanElement | null>(null);
 const currentData = computed(() => viewData?.showingChildSkills[props.skillName]);
-// 仅当有可选子技能列表时才启用自适应宽度
-const autoWidth = computed(() => !!props.childSkillData?.list?.length);
+// 有可选子技能列表，或具名的自定义技能（运动、宗教）都启用自适应宽度
+const autoWidth = computed(
+  () => props.skillName !== '' || !!props.childSkillData?.list?.length,
+);
 // 当前子技能的文本值
 const childText = computed(() => currentData.value?.[props.childSkillData?.place ?? -1] ?? '');
 const existedData = computed(() => {

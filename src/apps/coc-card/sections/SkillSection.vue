@@ -5,7 +5,7 @@ import PaperSection from '../components/PaperSection.vue';
 import SkillTable from '../components/SkillTable.vue';
 import WritableRow from '../components/WritableRow.vue';
 // models
-import { getSkillGroups } from '../models/skill';
+import { getSkillGroups, getSkillTableSplitIndex } from '../models/skill';
 import { getProPointByJobAndAttrs } from '../models/job';
 
 import {
@@ -16,6 +16,7 @@ import {
   useRules,
 } from '../hooks/useProviders';
 
+// 旧规则的默认分栏位置；新版规则技能行数变化后按行数重新平衡
 const skillTableSeparateIndex = 6;
 
 const pc = usePC();
@@ -24,6 +25,9 @@ const pageData = usePageData();
 const viewData = useViewData();
 const rules = useRules();
 const skillGroupsData = computed(() => getSkillGroups(rules?.value));
+const skillTableSplitIndex = computed(() =>
+  getSkillTableSplitIndex(skillGroupsData.value, skillTableSeparateIndex),
+);
 
 function getValues() {
   const { pro, interest } = pc?.value.pointValues || {};
@@ -204,11 +208,11 @@ watch(
     </template>
     <div class="skill-section-body">
       <SkillTable
-        :data="skillGroupsData.slice(0, skillTableSeparateIndex)"
+        :data="skillGroupsData.slice(0, skillTableSplitIndex)"
         :suggestion="suggestion"
       />
       <div class="divider"></div>
-      <SkillTable :data="skillGroupsData.slice(skillTableSeparateIndex)" />
+      <SkillTable :data="skillGroupsData.slice(skillTableSplitIndex)" />
     </div>
   </PaperSection>
 </template>
