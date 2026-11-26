@@ -26,5 +26,6 @@
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false,
     createDesktopShortcut: false,
+    include: 'electron/installer.nsh',
   },
 }

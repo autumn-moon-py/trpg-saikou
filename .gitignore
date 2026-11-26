@@ -7,8 +7,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-dist
-node_modules
+public/
+dist/
+dist-electron/
+node_modules/
+release/
+uniapp/
 .DS_Store
 dist-ssr
 coverage
@@ -35,3 +39,10 @@ src/local/*
 .vercel
 /release/*
 uniapp/unpackage
+
+# 发布配置与状态
+publish.config.local.json
+.publish-state.json
+
+# 云打包日志
+apk-pack.log

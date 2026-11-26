@@ -16,9 +16,25 @@ import electron from 'vite-plugin-electron'
 
 // https://vitejs.dev/config/
 export default defineConfig( {
-    plugins: [ vue(), electron( {
-        entry: 'electron/main/index.js',
-    } ) ],
+    plugins: [
+        vue(),
+        electron( [
+            { entry: 'electron/main/index.js' },
+            {
+                entry: 'electron/preload/index.js',
+                // 主进程与 preload 同名为 index，需单独指定输出文件名，避免互相覆盖
+                vite: {
+                    build: {
+                        lib: {
+                            entry: 'electron/preload/index.js',
+                            formats: [ 'cjs' ],
+                            fileName: () => 'preload.js',
+                        },
+                    },
+                },
+            },
+        ] ),
+    ],
     //   base: getBase(),
     base: './',
     resolve: {

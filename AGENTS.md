@@ -370,6 +370,15 @@ AppView.vue
 - 预加载：`electron/preload/index.js`
 - 文件下载兼容：`window.downloadAndSaveFile`（Electron 环境）vs `<a>` 标签下载（浏览器环境）
 
+### 8.5 Web 部署
+
+- 工作流：`.github/workflows/deploy.yml`，触发条件为推送 `v*` 标签（或手动 workflow_dispatch）
+- 流程：CI 执行 `yarn install --frozen-lockfile` + `yarn build`，再由 `peaceiris/actions-gh-pages` 将 `dist/` 发布到本仓库 `deploy` 分支
+- 三个静态托管（Netlify / 两个 Vercel 项目 / Cloudflare Pages）监听本仓库 `deploy` 分支，构建命令留空、输出目录为根
+- 发布命令：`git tag v2.2.1 && git push origin v2.2.1`
+- 仓库需在 Settings → Actions → General 中将 Workflow permissions 设为 Read and write，CI 才能推送 `deploy` 分支
+- 历史遗留的 `trpg-tool` 静态仓库与 `推送远端.bat` 已废弃
+
 ---
 
 ## 9. 依赖关系图

@@ -1,0 +1,8 @@
+{
+  "appId": "plus.H5DE094C7",
+  "appName": "COC车卡",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}

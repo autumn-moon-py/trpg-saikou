@@ -1,22 +1,22 @@
 {
     "name": "trpg-autumnmoon",
-    "version": "2.2.1",
+    "version": "2.2.2",
     "private": true,
     "main": "dist-electron/index.js",
     "scripts": {
         "dev": "vite --host 0.0.0.0",
-        "build": "run-p type-check build-only && run-p build-lib",
+        "build": "run-p type-check build-only && yarn build-lib",
         "build-lib": "vite build -c vite.libs.config.ts",
         "local": "NODE_ENV=development vite build --mode development",
         "preview": "vite preview",
         "build-only": "vite build",
-        "deploy": "./shell/deploy.sh",
         "type-check": "vue-tsc --noEmit",
         "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
         "format": "prettier --write src/",
         "buildexe": "vite build && electron-builder"
     },
     "devDependencies": {
+        "@capacitor/cli": "8.6.2",
         "@element-plus/icons-vue": "^2.3.1",
         "@rushstack/eslint-patch": "^1.7.2",
         "@types/node": "^20.11.28",
@@ -47,6 +47,10 @@
         "vue-tsc": "^2.0.6"
     },
     "dependencies": {
+        "@capacitor/android": "8.6.2",
+        "@capacitor/core": "8.6.2",
+        "@capacitor/filesystem": "^8.1.5",
+        "@capacitor/share": "^8.0.3",
         "electron-window-state": "^5.0.3"
     }
 }

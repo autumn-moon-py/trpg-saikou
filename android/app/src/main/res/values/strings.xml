@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">COC车卡</string>
+    <string name="title_activity_main">COC车卡</string>
+    <string name="package_name">plus.H5DE094C7</string>
+    <string name="custom_url_scheme">plus.H5DE094C7</string>
+</resources>

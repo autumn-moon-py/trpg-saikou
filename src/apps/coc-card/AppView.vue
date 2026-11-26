@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, provide, ref, watch, computed } from 'vue';
+import { reactive, provide, ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import qs from 'qs';
 
 import { createPC } from './models/character';
@@ -101,13 +101,43 @@ const handleDrop = (event: DragEvent) => {
 };
 
 const processText = (text: string | ArrayBuffer | null) => {
+  if (typeof text !== 'string') return;
+  const content = text.trim();
+  if (!content) {
+    ElMessage.error('未读取到卡数据');
+    return;
+  }
   ElMessage.success('导入卡数据中');
   if (controlSectionRef.value) {
-    controlSectionRef.value.inData = text;
-    controlSectionRef.value.applyInData();
+    controlSectionRef.value.inData = content;
+    try {
+      controlSectionRef.value.applyInData();
+    } catch {
+      ElMessage.error('不是有效的角色卡数据');
+    }
     controlSectionRef.value.inData = '';
   }
 };
+
+// 接收 exe 通过右键菜单/文件关联传入的角色卡数据
+let offOpenCard: (() => void) | undefined;
+
+onMounted(async () => {
+  const desktopApi = window.trpgDesktop;
+  if (!desktopApi) return;
+
+  // 先注册监听，再取启动时暂存的数据，避免漏消息
+  offOpenCard = desktopApi.onOpenCard((payload) => {
+    if (payload?.content) processText(payload.content);
+  });
+
+  const pending = await desktopApi.pullPendingCard();
+  if (pending?.content) processText(pending.content);
+});
+
+onUnmounted(() => {
+  offOpenCard?.();
+});
 
 import { isDesktop } from '@/utils/platform';
 import { useIsMobileLayout } from './hooks/usePlatform';
